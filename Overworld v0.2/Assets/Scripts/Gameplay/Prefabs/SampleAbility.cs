@@ -6,7 +6,6 @@ using TMPro;
 
 public class SampleAbility : MonoBehaviour {
 
-    bool toggle = true;
     public int castRange;
     public int xAxis;
     //[SerializeField] int yAxis; dont need this yet
