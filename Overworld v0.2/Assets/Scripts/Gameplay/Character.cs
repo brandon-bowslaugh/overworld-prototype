@@ -14,7 +14,18 @@ public class BattleCharacter {
     public List<BattleAbility> abilities;
 
 }
+public class Status {
 
+    public string statusName;
+    public string description;
+    public float value;
+    public int duration;
+    public int priority; // To Determine order of applications
+    public int statusType;
+    public int effectType;
+    public Status additionalStatus = null;
+
+}
 // This class is responsible for storing all data about individual Characters and handling their Health
 public class Character : MonoBehaviour {
 
@@ -34,6 +45,8 @@ public class Character : MonoBehaviour {
     // For multiplayer later
     [SerializeField] int playerNumber;
 
+    public List<Status> statusEffects;
+
     // Initialize Character variables on spawn
     public void Setup( int id, BattleCharacter currentCharacter, Vector3 spawnLocation ) {
         entityName = currentCharacter.name;
@@ -45,6 +58,7 @@ public class Character : MonoBehaviour {
         entityIdentifier = id;
         displayName.text = entityName;
         gameObject.transform.position = spawnLocation;
+        statusEffects = new List<Status>();
     }
 
     // Method responsible for dealing damage to THIS Character
@@ -77,5 +91,18 @@ public class Character : MonoBehaviour {
     // Method responsible for refreshing health bar display
     public void DisplayHealth() {
         healthDisplay.fillAmount = currentHp / maxHp;
+    }
+
+    public void ApplyStatusEffect(Status status) {
+        statusEffects.Add( status );
+    }
+
+    public void StatusEffectsActivate() {
+        foreach (Status status in statusEffects) {
+            StatusController.Instance.Init( status, false );
+            if (status.additionalStatus != null) {
+                StatusController.Instance.Init( status.additionalStatus, true );
+            }
+        }
     }
 }

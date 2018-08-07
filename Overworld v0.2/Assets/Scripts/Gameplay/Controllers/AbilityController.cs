@@ -25,7 +25,7 @@ public class AbilityController : MonoBehaviour {
     #endregion
 
     // Public Variables
-    public static int AbilitiesUsed = 0;
+    public static int AbilitiesUsed = 0; // Counter variable
     public enum ReticleType { None, Diamond, Square, Cone };
     public enum AbilityType { Damage, Healing, Mobility };
     public enum TargetType { Any, Enemy, Ally, Self };

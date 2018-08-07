@@ -47,6 +47,7 @@ public class GameLoader : MonoBehaviour {
         TileController.Instance.Setup();
         UIController.Instance.Setup();
         ReticleController.Instance.Setup();
+        
     }
 
     // Creates Character Prefabs
