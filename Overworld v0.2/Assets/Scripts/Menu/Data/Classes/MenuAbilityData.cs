@@ -17,5 +17,6 @@ public class MenuAbilityData {
     public string talentTree;
     public string description;
     public string shiftDescription;
+    public int statusId;
 	
 }

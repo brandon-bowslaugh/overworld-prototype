@@ -27,7 +27,7 @@ public class AbilityController : MonoBehaviour {
     // Public Variables
     public static int AbilitiesUsed = 0; // Counter variable
     public enum ReticleType { None, Diamond, Square, Cone };
-    public enum AbilityType { Damage, Healing, Mobility };
+    public enum AbilityType { Damage, Healing, Mobility, Cleanse };
     public enum TargetType { Any, Enemy, Ally, Self };
     public static int CastRange { get; private set; }
     public static AbilityType Type { get; private set; } // 0 is damage, 1 is healing, 2 is mobility
@@ -38,16 +38,23 @@ public class AbilityController : MonoBehaviour {
     // Local Variables
     float abilityValue; // damage or healing number
     TargetType targetType; // 0 all, 1 is enemy, 2 is ally, 3 is self
+    private Status status;
 
     // For initializing the selected ability
     public void Init(BattleAbility ability) {
-
+        Debug.Log( JsonUtility.ToJson( ability ) );
         SetTargetType( ability.targetType );
         SetAbilityType( ability.abilityType );
         CastRange = ability.range;
         SetAbilityDamage( ability.value );
         XAxis = ability.xAxis;
         SetReticleType( ability.reticleType );
+        if (ability.status != null) {
+            status = ability.status;
+        } else {
+            status = null;
+        }
+        
         TurnController.State = TurnController.TurnState.Attack;
 
     }
@@ -102,6 +109,9 @@ public class AbilityController : MonoBehaviour {
             case 2:
                 Type = AbilityType.Mobility;
                 break;
+            case 3:
+                Type = AbilityType.Cleanse;
+                break;
         }
     }
 
@@ -143,10 +153,7 @@ public class AbilityController : MonoBehaviour {
     // ValidateTargets methods ensure that only Characters inside the cast area will be affected
     private void ValidateTargets(GameObject[] targets, float val) {
         foreach (GameObject target in targets) {
-            if (ReticleController.CastArea.Contains( TileController.GridLayout.WorldToCell( target.transform.position ) )) {
-                target.GetComponent<Character>().TakeDamage( val );
-                Debug.Log( "Deal damage to " + target.GetComponent<Character>().entityName );
-            }
+            ValidateTarget( target, val );
         }
     }
 
@@ -154,6 +161,28 @@ public class AbilityController : MonoBehaviour {
     private void ValidateTarget( GameObject target, float val ) {
         if (ReticleController.CastArea.Contains( TileController.GridLayout.WorldToCell( target.transform.position ) )) {
             target.GetComponent<Character>().TakeDamage( val );
+
+            if(status != null) {
+                Status curStatus = new Status();
+                curStatus = status;
+                target.GetComponent<Character>().ApplyStatusEffect( curStatus );
+            }
+        }
+    }
+
+    private void CleanseTargets(GameObject[] targets) {
+        foreach (GameObject target in targets) {
+            CleanseTarget( target );
+        }
+    }
+
+    private void CleanseTarget(GameObject target) {
+        if (ReticleController.CastArea.Contains( TileController.GridLayout.WorldToCell( target.transform.position ) ) && target.tag != "Player") { // need to rework this logic later with teams implemented TODO
+            target.GetComponent<Character>().ClearAllBuffs();
+            target.GetComponent<Character>().ClearAllDebuffs(); // Temporary until teams TODO
+            target.GetComponent<Character>().RevealThisCharacter();
+        } else if(ReticleController.CastArea.Contains( TileController.GridLayout.WorldToCell( target.transform.position ) ) && target.tag == "Player") {
+            target.GetComponent<Character>().ClearAllDebuffs();
         }
     }
 
@@ -173,6 +202,10 @@ public class AbilityController : MonoBehaviour {
                 ValidateTargets( GameObject.FindGameObjectsWithTag( "Enemy" ), -abilityValue );
                 ValidateTargets( GameObject.FindGameObjectsWithTag( "Ally" ), -abilityValue );
                 ValidateTarget( GameObject.FindWithTag( "Player" ), -abilityValue );
+            } else if (Type == AbilityType.Cleanse) { // Cleanse Any
+                CleanseTargets( GameObject.FindGameObjectsWithTag( "Enemy" ) );
+                CleanseTargets( GameObject.FindGameObjectsWithTag( "Ally" ) );
+                CleanseTarget( GameObject.FindWithTag( "Player" ) );
             }
 
         } else if (targetType == TargetType.Enemy) { // Target Enemies

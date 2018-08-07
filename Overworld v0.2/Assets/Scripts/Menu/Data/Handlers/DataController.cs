@@ -50,7 +50,7 @@ public class DataController : MonoBehaviour {
     }
     #endregion
 
-    #region PartyComp
+    #region Menu
 
     #region PartyCompVars
 
@@ -65,7 +65,6 @@ public class DataController : MonoBehaviour {
     private int navData = 0;
     private int previousCharacterId;
     private MenuPartyData characterSwapParty;
-    private List<BattleCharacter> battleCharacters;
 
     #endregion
 
@@ -217,8 +216,15 @@ public class DataController : MonoBehaviour {
         return new MenuAbilityData();
     }
     #endregion
-    #region BattleData
+    #region Battle
+    
+    private List<BattleCharacter> battleCharacters;
+    private Status[] statusEffects;
+
     private List<BattleAbility> LoadAbilities(int id) {
+
+        statusEffects = loadedData.allStatusData;
+
         List<BattleAbility> abilities = new List<BattleAbility>();
         MenuWeaponData weapon = GetWeapon(id);
         if(weapon.name == "" || weapon.name == null) {
@@ -236,6 +242,13 @@ public class DataController : MonoBehaviour {
             ability.abilityType = abilityData.type;
             ability.reticleType = abilityData.reticle;
             ability.targetType = abilityData.target;
+            if(abilityData.statusId != -1) {
+                for (int i = 0; i < statusEffects.Count(); i++) {
+                    if (abilityData.statusId == i) {
+                        ability.status = statusEffects[i];
+                    }
+                }
+            }
             abilities.Add( ability );
         }
         return abilities;

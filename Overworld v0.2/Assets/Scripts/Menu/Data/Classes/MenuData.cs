@@ -12,6 +12,7 @@ public class MenuData {
     public MenuCharacterData[] allMenuCharacterData;
     public MenuTalentData[] allMenuTalentData;
     public MenuWeaponData[] allMenuWeaponData;
+    public Status[] allStatusData;
     public int navData;
     public int previousCharacterId;
     public MenuPartyData characterSwapParty;

@@ -25,6 +25,10 @@ public class StatusController : MonoBehaviour {
                          
     public enum StatusType { VoT/*Value over Time*/, Incapacitate, Stun, Stat, Invisibility } // { 0, 1, 2, 3, 4 } 
     public enum EffectType { Debuff, Buff } // { 0, 1 }
+    public enum TurnPosition { Start, End }
+    public enum SchoolType { Physical, Magical }
+
+    public static TurnPosition Turn { get; set; }
 
     private StatusType Type;
     private EffectType Effect;
@@ -32,7 +36,10 @@ public class StatusController : MonoBehaviour {
     private string description;
     private int priority;
     private float value;
-    private int duration;
+    private Status currentStatus;
+
+    delegate void StealthDelegate();
+    StealthDelegate handleStealth;
 
     /* 
      * For additional status effects, because some Status Effects will do multiple things.
@@ -40,19 +47,20 @@ public class StatusController : MonoBehaviour {
      * best way to deal with this. 
      * (Example: Stun for 2 rounds {Status Effect #1}, and 50 Damage per round {Status Effect #2 Hidden})
      */
-    private bool hidden; 
+    private bool hidden = false; 
 
-    public void Init(Status status, bool hide) {
+    public void Init(Status status) {
 
-        if (!hide) {
+        if (status.hidden) {
             statusName = status.statusName;
             description = status.description;
+            hidden = true;
         }
         priority = status.priority;
         value = status.value;
-        duration = status.duration;
         SetStatusType( status.statusType );
         SetEffectType( status.effectType );
+        currentStatus = status;
         Activate();
         
     }
@@ -90,32 +98,119 @@ public class StatusController : MonoBehaviour {
 
 
     // Activate() calls one of the below methods depending on the Init() variables above  
-    private void Activate() {      
+    private void Activate() {
+        switch (Type) {
+            case StatusType.VoT:
+                ValueOverTime();
+                break;
+            case StatusType.Incapacitate:
+                Incapacitate();
+                break;
+            case StatusType.Stun:
+                Stun();
+                break;
+            case StatusType.Stat:
+                Stat();
+                break;
+            case StatusType.Invisibility:
+                Invisibility();
+                break;
+        }
     }
 
     // StatusType.VoT, uses EffectType for { Buff: value stays positive }, { Debuff: value becomes negative }
     private void ValueOverTime() {
-
+        if (Effect == EffectType.Debuff) {
+            Finish( statusName, false );
+            EntityManager.Entities[TurnController.turn].TakeDamage( value );
+        } else {
+            Finish( statusName, true );
+            EntityManager.Entities[TurnController.turn].TakeDamage( -value );
+        }            
     }
     
-    // StatusType.Incapacitate, Not used at this time
+    // StatusType.Incapacitate
     private void Incapacitate() { 
-
+        // Not used at this time
     }
 
     // StatusType.Stun
     private void Stun() {
-
+        if (Effect == EffectType.Debuff) {
+            NavigationController.MovementRemaining = 0;
+            AbilityController.AbilitiesUsed = 1;
+        }
     }
 
     // StatusType.Stat, uses EffectType to determine positive or negative { int value }
     private void Stat() {
-
+        // Hardcoding as movement speed for now TODO
+        if (Effect == EffectType.Debuff) {
+            NavigationController.MovementRemaining = 0;
+        }
     }
 
+    #region Invisibility
     // StatusType.Invisibility, uses EffectType for { Buff = Make invisible }, { Debuff = reveal invisible / prevent invisible }
     private void Invisibility() {
+        bool positiveEffect;
+        if(Effect == EffectType.Buff) {
 
+            if (Turn == TurnPosition.Start) { // reveal the character on their turn
+                handleStealth = RevealCharacter;
+                positiveEffect = false;
+            } else if ( Turn == TurnPosition.End && EntityManager.Entities[TurnController.turn].revealed == false ) { // hide the character after their turn
+                handleStealth = StealthCharacter;
+                positiveEffect = true;
+            } else {
+                // They are revealed and can not become invisible
+                EntityManager.Entities[TurnController.turn].RemoveStatus( currentStatus );
+                EntityManager.Entities[TurnController.turn].RemoveEndOfTurnStatus( currentStatus );
+                handleStealth = RevealCharacter;
+                positiveEffect = false;
+            }
+
+        } else {
+
+            EntityManager.Entities[TurnController.turn].revealed = true;
+            handleStealth = RevealCharacter;
+            positiveEffect = false;
+
+        }
+        Finish( "Invisibility", positiveEffect );
+        
     }
 
+    public void StealthCharacter() { // TODO animation
+        foreach (SpriteRenderer renderer in EntityManager.Entities[TurnController.turn].GetComponentsInChildren<SpriteRenderer>()) {
+            renderer.enabled = false;
+        }
+        EntityManager.Entities[TurnController.turn].GetComponentInChildren<Canvas>().enabled = false;
+    }
+
+    public void RevealCharacter() { // TODO animation
+        foreach (SpriteRenderer renderer in EntityManager.Entities[TurnController.turn].GetComponentsInChildren<SpriteRenderer>()) {
+            renderer.enabled = true;
+        }
+        EntityManager.Entities[TurnController.turn].GetComponentInChildren<Canvas>().enabled = true;
+    }
+
+    public void Finish( string text, bool positiveEffect ) {
+        if (positiveEffect) {
+            EntityManager.Entities[TurnController.turn].combatText.color = new Color32( 3, 204, 0, 255 ); // Green
+            EntityManager.Entities[TurnController.turn].combatText.text = text;
+        }
+        else {
+            EntityManager.Entities[TurnController.turn].combatText.color = new Color32( 255, 30, 30, 255 ); // Red
+            EntityManager.Entities[TurnController.turn].combatText.text = text;
+            if (Type == StatusType.Invisibility) // Must reveal before displaying text if invisibility
+                handleStealth();
+        }
+        EntityManager.Entities[TurnController.turn].combatText.canvasRenderer.SetAlpha( 1.0f );
+        EntityManager.Entities[TurnController.turn].combatText.CrossFadeAlpha( 0.0f, 2.0f, false );
+
+        if (positiveEffect && Type == StatusType.Invisibility) // Only hide after displaying text if invisibility
+            handleStealth();
+    }
+    #endregion
 }

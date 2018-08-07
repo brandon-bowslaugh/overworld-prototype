@@ -12,7 +12,7 @@ public class BattleAbility {
     public int reticleType;
     public int abilityType;
     public int targetType;
-    //public List<BattleStatus> status
+    public Status status;
 
 }
 

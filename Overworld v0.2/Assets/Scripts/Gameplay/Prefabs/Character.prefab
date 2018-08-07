@@ -73,6 +73,7 @@ GameObject:
   - component: {fileID: 114005270769983540}
   - component: {fileID: 114498020207276848}
   - component: {fileID: 225731525448892604}
+  - component: {fileID: 222797228748540822}
   m_Layer: 8
   m_Name: HealthCanvas
   m_TagString: Untagged
@@ -198,10 +199,12 @@ MonoBehaviour:
   damageMod: 0
   entityIdentifier: 0
   currentHp: 0
+  abilityBar: {fileID: 0}
   healthDisplay: {fileID: 114537047273187930}
-  playerNumber: 0
   combatText: {fileID: 114381455147488282}
   displayName: {fileID: 114326782208381340}
+  playerNumber: 0
+  revealed: 0
 --- !u!114 &114326782208381340
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -599,6 +602,13 @@ CanvasRenderer:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1177327807024486}
+  m_CullTransparentMesh: 0
+--- !u!222 &222797228748540822
+CanvasRenderer:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1419091177548798}
   m_CullTransparentMesh: 0
 --- !u!222 &222850654563020940
 CanvasRenderer:

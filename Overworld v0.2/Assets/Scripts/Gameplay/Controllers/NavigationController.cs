@@ -30,7 +30,7 @@ public class NavigationController : MonoBehaviour {
     #endregion
     #region Movement Variables
     // Public Variables
-    public static int MovementRemaining { get; private set; }   // total movement remaining for the entity
+    public static int MovementRemaining { get; set; }   // total movement remaining for the entity
 
     // Local Variables
     private GameObject entity;

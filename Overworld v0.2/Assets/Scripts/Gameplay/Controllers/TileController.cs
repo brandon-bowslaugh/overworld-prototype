@@ -28,7 +28,6 @@ public class TileController : MonoBehaviour {
     public void Setup() {
         tilemap = GameObject.FindWithTag( "Disp" ).GetComponent<Tilemap>();
         watermap = GameObject.FindWithTag( "Blocked" ).GetComponent<Tilemap>();
-        Debug.Log( "TileController.cs -> Setup()" );
     }
     #endregion
 

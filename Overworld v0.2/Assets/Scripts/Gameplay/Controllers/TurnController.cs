@@ -89,18 +89,19 @@ public class TurnController : MonoBehaviour {
         EntityManager.Entities[turn].tag = "Player";
         NavigationController.Instance.Init(EntityManager.Entities[turn].gameObject);
         AbilityController.AbilitiesUsed = 0;
+        EntityManager.Entities[turn].GetComponent<Character>().StatusEffectsActivate();
         // Init other controllers
         EntityManager.Entities[turn].GetComponent<Character>().healthDisplay.GetComponent<Outline>().effectColor = new Color32( 97, 41, 152, 255 );
 
         UIController.Show( EntityManager.Entities[turn].abilityBar.GetComponent<CanvasGroup>() );
         UIController.Show( GameObject.FindWithTag( "Standbybar" ).GetComponent<CanvasGroup>() );
-
         State = TurnState.Standby;
     }
 
     // Clear all tiles for the next Character turn
     private void EndTurn() {
         // Clear focus on entity
+        EntityManager.Entities[turn].GetComponent<Character>().EndOfTurnStatusEffects();
         EntityManager.Entities[turn].GetComponent<Character>().healthDisplay.GetComponent<Outline>().effectColor = new Color32( 97, 41, 152, 0 );
         // Clear all tile colors
 
