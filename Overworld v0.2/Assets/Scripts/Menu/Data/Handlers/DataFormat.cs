@@ -7,11 +7,11 @@ using UnityEngine.UI;
 
 public class DataFormat {
 
-    public List<UIParty> PartyInfoFormat(DataController data, MenuPartyData[] parties, MenuCharacterData[] characters) {
+    public List<UIParty> PartyInfoFormat(DataController data, PlayerPartyData[] parties, PlayerCharacterData[] characters) {
         List<UIParty> returnParties = new List<UIParty>();
 
         // cycle through parties
-        foreach(MenuPartyData curParty in parties) {
+        foreach(PlayerPartyData curParty in parties) {
             int[] characterIdsArray = { curParty.slotOneCharacterId, curParty.slotTwoCharacterId, curParty.slotThreeCharacterId, curParty.slotFourCharacterId };
             List<int> characterIds = FillCharacterSlots(characterIdsArray);
             UIParty party = CreateUIParty(curParty, data);
@@ -40,7 +40,7 @@ public class DataFormat {
         return returnArray;
     }
 
-    public void PopulateParty( DataController data, MenuPartyData party, MenuCharacterData[] characters ) {
+    public void PopulateParty( DataController data, PlayerPartyData party, PlayerCharacterData[] characters ) {
 
         // Get all of the Button Elements (Character Slots)
         Button[] buttons = GameObject.FindGameObjectWithTag( "PartyCharacters" ).GetComponentsInChildren<Button>();
@@ -102,7 +102,7 @@ public class DataFormat {
         }
     }
 
-    private UICharacter CreateUICharacter(MenuCharacterData character, DataController data) {
+    public UICharacter CreateUICharacter(PlayerCharacterData character, DataController data) {
         UICharacter member = new UICharacter();
         member.id = character.id;
         member.name = character.name;
@@ -117,7 +117,7 @@ public class DataFormat {
         member.quality = ColorConvertQuality( character.quality );
         return member;
     }
-    private UIParty CreateUIParty(MenuPartyData party, DataController data ) {
+    private UIParty CreateUIParty(PlayerPartyData party, DataController data ) {
         UIParty curParty = new UIParty();
         curParty.partyId = party.id;
         curParty.partyName = party.name;

@@ -12,8 +12,8 @@ public class MainMenu : MonoBehaviour {
         DataLoader dataLoader = new DataLoader();
         DataController data = dataLoader.LoadData();
         // Get Players Current Selected party
-        MenuPartyData party = data.GetMenuPartyData();
-        MenuCharacterData[] characters = data.GetAllMenuCharacterData();
+        PlayerPartyData party = data.GetPlayerPartyData();
+        PlayerCharacterData[] characters = data.GetAllPlayerCharacterData();
 
         // Display the data on the current scene canvas (MainMenu)
         DataFormat dataPop = new DataFormat();

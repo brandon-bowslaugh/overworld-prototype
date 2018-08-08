@@ -22,41 +22,40 @@ public class ScrollParty : MonoBehaviour {
     public string partyName;
     public bool selected;
     private List<UICharacter> characters;
-    private MenuPartyData party;
+    private PlayerPartyData party;
     public PartiesMenu partiesMenu;
-    public MenuPartyData[] menuPartyData;
+    public PlayerPartyData[] playerPartyData;
 
     // Vars for children
     public Transform contentPanel;
     public ScrollParty otherParty;
-    public SimpleObjectPool characterObjectPool = new SimpleObjectPool();
+    public SimpleObjectPool characterObjectPool;
     
 
-    private void RefreshDisplay( List<UICharacter> characters, MenuPartyData menuPartyData ) {
-        AddCharacters( characters, menuPartyData );
+    private void RefreshDisplay( List<UICharacter> characters, PlayerPartyData playerPartyData ) {
+        AddCharacters( characters, playerPartyData );
     }
-    private void AddCharacters( List<UICharacter> characters, MenuPartyData menuPartyData ) {
+    private void AddCharacters( List<UICharacter> characters, PlayerPartyData playerPartyData ) {
         // will need to add empty slots if there are empty characters
         for (int i = 0; i < characters.Count; i++) {
             UICharacter character = characters[i];
-            GameObject newCharacter = characterObjectPool.GetObject();
+            GameObject newCharacter = GameObject.Find("CharacterObjectPool").GetComponent<SimpleObjectPool>().GetObject();
             newCharacter.transform.SetParent( contentPanel );
 
             SampleCharacter sampleCharacter = newCharacter.GetComponent<SampleCharacter>();
-            Debug.Log( party.name );
-            sampleCharacter.Setup( character, this, menuPartyData );
+            sampleCharacter.Setup( character, this, playerPartyData );
         }
     }
 
 
-    public void Setup( UIParty currentParty, PartiesMenu currentPartiesMenu, List<UICharacter> characters, MenuPartyData[] menuParties ) {
-        menuPartyData = menuParties;
+    public void Setup( UIParty currentParty, PartiesMenu currentPartiesMenu, List<UICharacter> characters, PlayerPartyData[] playerParties ) {
+        playerPartyData = playerParties;
         foreach(UICharacter character in characters) {
             character.partyId = currentParty.partyId;
         }
-        foreach(MenuPartyData menuParty in menuPartyData) {
-            if(currentParty.partyId == menuParty.id) {
-                party = menuParty;
+        foreach(PlayerPartyData playerParty in playerPartyData) {
+            if(currentParty.partyId == playerParty.id) {
+                party = playerParty;
             }
         }
         RefreshDisplay( characters, party );
@@ -71,11 +70,11 @@ public class ScrollParty : MonoBehaviour {
         foreach (PartyButtonHandler obj in gameObject.GetComponentsInChildren<PartyButtonHandler>()) {
             obj.partyId = partyId;
             string stringId = partyId.ToString();
-            MenuPartyData menuParty;
-            foreach(MenuPartyData p in menuPartyData) {
+            PlayerPartyData playerParty;
+            foreach(PlayerPartyData p in playerPartyData) {
                 if(p.id == partyId) {
-                    menuParty = p;
-                    gameObject.GetComponentInChildren<PartyButtonHandler>().party = menuParty;
+                    playerParty = p;
+                    gameObject.GetComponentInChildren<PartyButtonHandler>().party = playerParty;
                 }
             }
         }

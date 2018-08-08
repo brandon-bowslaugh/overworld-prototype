@@ -9,8 +9,9 @@ public class DataController : MonoBehaviour {
 
     // Filepath where data is stored
     // His: SameName
-    private readonly string gameDataFileName = "data.json";
-    private readonly string saveFile = "/StreamingAssets/data.json";
+    private readonly string menuDataFileName = "menu-data.json";
+    private readonly string playerDataFileName = "player-data.json";
+    private readonly string battleDataFileName = "battle-data.json";
 
     #endregion
 
@@ -24,125 +25,311 @@ public class DataController : MonoBehaviour {
         }         
         LoadMenuData();
         LoadPlayerComp();
+        LoadPlayerData();
         LoadBattleData();// need to move this so that it loads right before entering a battle TODO
+        InitializeBattle();
     }
 
-    #region Navigation
+    #region Load Menu Data
+
+    private MenuData loadedMenuData;
+    private MenuWeaponData[] allMenuWeaponData;
+    private MenuAbilityData[] allMenuAbilityData;
+    private int navData = 0;
+
+    private void LoadMenuData() {
+
+        string filePath = Path.Combine( Application.streamingAssetsPath, menuDataFileName );
+
+        if (File.Exists( filePath )) {
+
+            string dataAsJson = File.ReadAllText( filePath );
+            loadedMenuData = MenuData.CreateFromJSON( dataAsJson );
+            allMenuWeaponData = loadedMenuData.menuWeaponData;
+            allMenuAbilityData = loadedMenuData.menuAbilityData;
+            navData = loadedMenuData.navData;
+
+        }
+        else {
+            Debug.LogError( "Cannot load game data" );
+        }
+
+    }
+
+    #endregion
+
+    #region Load Player Data
+
+    private PlayerCompData playerComp;
+    private PlayerData loadedPlayerData;
+    private PlayerPartyData characterSwapParty;
+    private PlayerPartyData[] allPlayerPartyData;
+    private PlayerCharacterData[] allPlayerCharacterData;
+    private int previousCharacterId;
+    private int editCharacterid;
+
+    private void LoadPlayerData() {
+
+        string filePath = Path.Combine( Application.streamingAssetsPath, playerDataFileName );
+
+        if (File.Exists( filePath )) {
+
+            string dataAsJson = File.ReadAllText( filePath );
+            loadedPlayerData = PlayerData.CreateFromJSON( dataAsJson );
+            allPlayerCharacterData = loadedPlayerData.playerCharacterData;
+            allPlayerPartyData = loadedPlayerData.playerPartyData;
+            previousCharacterId = loadedPlayerData.previousCharacterId;
+            characterSwapParty = loadedPlayerData.characterSwapParty;
+
+        }
+        else {
+            Debug.LogError( "Cannot load game data" );
+        }
+
+    }
+
+    #endregion
+
+    #region Load Battle Data
+
+    private BattleData loadedBattleData;
+    private Status[] statusEffects;
+
+    private void LoadBattleData() {
+
+        string filePath = Path.Combine( Application.streamingAssetsPath, battleDataFileName );
+
+        if (File.Exists( filePath )) {
+
+            string dataAsJson = File.ReadAllText( filePath );
+            loadedBattleData = BattleData.CreateFromJSON( dataAsJson );
+            statusEffects = loadedBattleData.statusData;
+
+        }
+        else {
+            Debug.LogError( "Cannot load game data" );
+        }
+
+    }
+
+    #endregion
+
+    #region Initialize Battle Mode
+
+    // Variables for InitializeBattle()
+    private List<BattleCharacter> battleCharacters;
+
+    private void InitializeBattle() {
+        #region Character Creation Variables
+        List<BattleCharacter> tempCharacters = new List<BattleCharacter>();
+        // temporary value
+        int baseMovement = 5;
+        // base this on rarity/level/armortype later TODO
+        int baseHealth = 1824;
+        // temporary value
+        int baseInitiative = 6;
+        #endregion
+        PlayerPartyData party = GetPlayerPartyData();
+        int[] partyMemberIds = { party.slotOneCharacterId, party.slotTwoCharacterId, party.slotThreeCharacterId, party.slotFourCharacterId };
+        foreach (int id in partyMemberIds) {
+            BattleCharacter character = new BattleCharacter();
+            PlayerCharacterData characterData = GetCharacter( id );
+            if (characterData.name != null && characterData.name != "") {
+                // set Name
+                character.name = characterData.name;
+                // set Movement range
+                character.movementRange = baseMovement - (int)Mathf.Floor( characterData.armor / 2 ); // Light and Medium armor get movement of 5, Heavy gets movement of 4
+                // set Max HP
+                character.maxHp = (int)Mathf.Floor( baseHealth * (characterData.armor / 10) ) + baseHealth;
+                // set Initiative
+                if (characterData.armor == 0) {
+                    character.initiative = baseInitiative + (int)Mathf.Floor( Random.value * 20 );
+                }
+                else if (characterData.armor == 1) {
+                    character.initiative = (baseInitiative + 5) + (int)Mathf.Floor( Random.value * 20 );
+                }
+                else if (characterData.armor == 2) {
+                    character.initiative = (baseInitiative - 5) + (int)Mathf.Floor( Random.value * 20 );
+                }
+                else {
+                    Debug.LogError( "Can not find out what armor character is wearing" );
+                }
+                // set Damage Mod
+                character.damageMod = 1;
+                character.abilities = LoadAbilities( characterData.weapon );
+                tempCharacters.Add( character );
+            }
+            else {
+                Debug.LogError( "character does not exist in party" );
+            }
+
+        }
+        battleCharacters = tempCharacters;
+    }
+
+    #endregion
+
+    #region Menu Functionality
+
     public void SetPreviousPage(int prev) {
         navData = prev;
     }
     public int GetPreviousPage() {
         return navData;
     }
-    public void SetCharacterSwap(MenuPartyData party, int characterId ) {
+    public void SetCharacterSwap(PlayerPartyData party, int characterId ) {
         previousCharacterId = characterId;
         characterSwapParty = party;
-        Debug.Log( party.name );
     }
     public int GetCharacterToSwap() {
         return previousCharacterId;
     }
-    public MenuPartyData GetPartyToEdit() {
+    public PlayerPartyData GetPartyToEdit() {
         return characterSwapParty;
     }
-    public void SwapCharacterInParty(UIParty party, int oldCharacterId, int newCharacterId ) {
+    public void SwapCharacterInParty(PlayerPartyData party, int oldCharacterId, int newCharacterId ) {
+        int[] partyMembers = { party.slotOneCharacterId, party.slotTwoCharacterId, party.slotThreeCharacterId, party.slotFourCharacterId };
+        for(int i=0; i<partyMembers.Length; i++) {
+            if(partyMembers[i] == oldCharacterId) {
+                partyMembers[i] = newCharacterId;
+                break;
+            }
+        }
+        int[] newPartyMembers = { partyMembers[0], partyMembers[1], partyMembers[2], partyMembers[3] };
+        for (int i=0; i<allPlayerPartyData.Length; i++) {
+            if(allPlayerPartyData[i] == party) {
+                party.slotOneCharacterId = newPartyMembers[0];
+                party.slotTwoCharacterId = newPartyMembers[1];
+                party.slotThreeCharacterId = newPartyMembers[2];
+                party.slotFourCharacterId = newPartyMembers[3];
+                allPlayerPartyData[i].Equals(party);
+                break;
+            }
+        }
+        loadedPlayerData.playerPartyData = allPlayerPartyData;
+        SavePlayerData();
+    }
 
+    public MenuWeaponData[] GetAllMenuWeaponData() {
+        return allMenuWeaponData;
+    }
+
+    private MenuWeaponData GetWeapon( int id ) {
+        foreach (MenuWeaponData weapon in allMenuWeaponData) {
+            if (weapon.id == id) {
+                return weapon;
+            }
+        }
+        return new MenuWeaponData();
+    }
+    private MenuAbilityData GetAbility( int id ) {
+        foreach (MenuAbilityData ability in allMenuAbilityData) {
+            if (ability.id == id) {
+                return ability;
+            }
+        }
+        return new MenuAbilityData();
     }
     #endregion
 
-    #region Menu
+    #region Player Functionality - Data Manipulation
 
-    #region PartyCompVars
+    private void SavePlayerData() {
+        string dataAsJson = JsonUtility.ToJson( loadedPlayerData );
+        string filePath = Application.streamingAssetsPath + "/" + playerDataFileName;
+        File.WriteAllText( filePath, dataAsJson );
+        LoadPlayerData();
+    }
 
-    // Current Selected Party ID
-    // his: PlayerProgress
-    private PlayerCompData playerComp;
-    private MenuData loadedData;
-    private MenuPartyData[] allMenuPartyData;
-    private MenuCharacterData[] allMenuCharacterData;
-    private MenuWeaponData[] allMenuWeaponData;
-    private MenuAbilityData[] allMenuAbilityData;
-    private int navData = 0;
-    private int previousCharacterId;
-    private MenuPartyData characterSwapParty;
+    public void SetEditCharacter(int characterId) {
 
-    #endregion
+        editCharacterid = characterId;
+
+    }
+
+    private void SavePlayerComp() { // his SavePlayerProgress
+        PlayerPrefs.SetInt( "currentComp", playerComp.partyId );
+        loadedPlayerData.selectedParty = playerComp;
+        SavePlayerData();
+    }
 
     // Temporary to get to testing, complete rewrite later
-    public void CreateTestParty(MenuPartyData testParty) {
-        List<MenuPartyData> listMenuPartyData = allMenuPartyData.ToList();
-        testParty.id = listMenuPartyData.Count;
-        listMenuPartyData.Add( testParty );
-        loadedData.allMenuPartyData = listMenuPartyData.ToArray();
-        SaveMenuData();
-        LoadMenuData();
+    public void CreateTestParty(PlayerPartyData testParty) {
+        List<PlayerPartyData> listPlayerPartyData = allPlayerPartyData.ToList();
+        testParty.id = listPlayerPartyData.Count;
+        listPlayerPartyData.Add( testParty );
+        loadedPlayerData.playerPartyData = listPlayerPartyData.ToArray();
+        SavePlayerData();
     }
 
-    public void EditPartyName(MenuPartyData party) {
-        List<MenuPartyData> listMenupartyData = allMenuPartyData.ToList();
-        listMenupartyData[party.id].name = party.name;
-        loadedData.allMenuPartyData = listMenupartyData.ToArray();
-        SaveMenuData();
-        LoadMenuData();
+    public void EditPartyName(PlayerPartyData party) {
+        List<PlayerPartyData> listPlayerPartyData = allPlayerPartyData.ToList();
+        listPlayerPartyData[party.id].name = party.name;
+        loadedPlayerData.playerPartyData = listPlayerPartyData.ToArray();
+        SavePlayerData();
     }
-
-
-
-    public void DuplicateParty(MenuPartyData party) {
+    
+    public void DuplicateParty(PlayerPartyData party) {
         // TODO fix this its probably too much resources for what its doing
-        List<MenuPartyData> listMenupartyData = allMenuPartyData.ToList();
-        MenuPartyData newParty = new MenuPartyData();
-        newParty.id = listMenupartyData.Count();
+        List<PlayerPartyData> listPlayerPartyData = allPlayerPartyData.ToList();
+        PlayerPartyData newParty = new PlayerPartyData();
+        newParty.id = listPlayerPartyData.Count();
         newParty.name = party.name;
         newParty.slotOneCharacterId = party.slotOneCharacterId;
         newParty.slotTwoCharacterId = party.slotTwoCharacterId;
         newParty.slotThreeCharacterId = party.slotThreeCharacterId;
         newParty.slotFourCharacterId = party.slotFourCharacterId;
 
-        listMenupartyData.Add( newParty );
-        loadedData.allMenuPartyData = listMenupartyData.ToArray();
-        SaveMenuData();
-        LoadMenuData();
+        listPlayerPartyData.Add( newParty );
+        loadedPlayerData.playerPartyData = listPlayerPartyData.ToArray();
+        SavePlayerData();
     }
 
     public void DeleteParty(int partyId) {
-        // TODO fix this after changes to List<MenuPartyData>
-        MenuPartyData[] newPartyData = new MenuPartyData[allMenuPartyData.Length - 1];
-        for (int i=0; i<allMenuPartyData.Length; i++) {
-            if (allMenuPartyData[i].id < partyId) {
-                newPartyData[i] = allMenuPartyData[i];
-            } else if(allMenuPartyData[i].id > partyId) {
-                allMenuPartyData[i].id = allMenuPartyData[i].id-1;
-                newPartyData[i - 1] = allMenuPartyData[i];
+        // TODO fix this after changes to List<PlayerPartyData>
+        PlayerPartyData[] newPartyData = new PlayerPartyData[allPlayerPartyData.Length - 1];
+        for (int i=0; i<allPlayerPartyData.Length; i++) {
+            if (allPlayerPartyData[i].id < partyId) {
+                newPartyData[i] = allPlayerPartyData[i];
+            } else if(allPlayerPartyData[i].id > partyId) {
+                allPlayerPartyData[i].id = allPlayerPartyData[i].id-1;
+                newPartyData[i - 1] = allPlayerPartyData[i];
             }
         }
-        loadedData.allMenuPartyData = newPartyData;
+        loadedPlayerData.playerPartyData = newPartyData;
         if (partyId <= GetCurrentPlayerParty()) {
             SetPlayerComp( GetCurrentPlayerParty()-1 );
         } else {
-            SaveMenuData();
-            LoadMenuData();
+            SavePlayerData();
         }
     }
 
-    public MenuPartyData GetMenuPartyData() { // his GetCurrentRoundData()
-        return allMenuPartyData[loadedData.selectedParty.partyId];
-    }
-    public MenuPartyData GetMenuPartyData(int partyId) { // his GetCurrentRoundData()
-        return allMenuPartyData[partyId];
-    }
-
-    public MenuPartyData[] GetAllMenuParties() {
-        return allMenuPartyData;
-    }
-
-    public MenuCharacterData[] GetAllMenuCharacterData() {
-        return allMenuCharacterData;
-    }
-
-    public void SetPlayerComp(int newPartyId) { // his SubmitNewPlayerScore
+    public void SetPlayerComp( int newPartyId ) { // his SubmitNewPlayerScore
         playerComp.partyId = newPartyId;
         SavePlayerComp();
+    }
+
+    #endregion
+
+    #region Player Functionality - Data Accessing
+
+    public int GetEditCharacter() {
+        return editCharacterid;
+    }
+
+    public PlayerPartyData GetPlayerPartyData() { // his GetCurrentRoundData()
+        return allPlayerPartyData[loadedPlayerData.selectedParty.partyId];
+    }
+    public PlayerPartyData GetPlayerPartyData(int partyId) { // his GetCurrentRoundData()
+        return allPlayerPartyData[partyId];
+    }
+
+    public PlayerPartyData[] GetAllPlayerParties() {
+        return allPlayerPartyData;
+    }
+
+    public PlayerCharacterData[] GetAllPlayerCharacterData() {
+        return allPlayerCharacterData;
     }
 
     private void LoadPlayerComp() { // his LoadPlayerProgress
@@ -156,74 +343,21 @@ public class DataController : MonoBehaviour {
         return playerComp.partyId;
     }
 
-    public MenuWeaponData[] GetAllMenuWeaponData() {
-        return allMenuWeaponData;
-    }
-    private MenuCharacterData GetCharacter(int id) {
-        foreach(MenuCharacterData character in allMenuCharacterData) {
+    
+    private PlayerCharacterData GetCharacter(int id) {
+        foreach(PlayerCharacterData character in allPlayerCharacterData) {
             if (character.id == id)
                 return character;
         }
-        return new MenuCharacterData();
+        return new PlayerCharacterData();
     }
-    private void SavePlayerComp() { // his SavePlayerProgress
-        PlayerPrefs.SetInt( "currentComp", playerComp.partyId );
-        loadedData.selectedParty = playerComp;
-        SaveMenuData();
-        LoadMenuData();
-    }
-    private void SaveMenuData() {
-        string dataAsJson = JsonUtility.ToJson( loadedData );
-        string filePath = Application.dataPath + saveFile;
-        File.WriteAllText( filePath, dataAsJson );
-    }
-    private void LoadMenuData() {
 
-        string filePath = Path.Combine( Application.streamingAssetsPath, gameDataFileName );
-
-        if (File.Exists( filePath )) {
-
-            string dataAsJson = File.ReadAllText( filePath );
-            loadedData = MenuData.CreateFromJSON( dataAsJson );
-            allMenuCharacterData = loadedData.allMenuCharacterData;
-            allMenuPartyData = loadedData.allMenuPartyData;
-            allMenuWeaponData = loadedData.allMenuWeaponData;
-            allMenuAbilityData = loadedData.allMenuAbilityData;
-            navData = loadedData.navData;
-            previousCharacterId = loadedData.previousCharacterId;
-            characterSwapParty = loadedData.characterSwapParty;          
-
-        }
-        else {
-            Debug.LogError( "Cannot load game data" );
-        }
-
-    }
-    private MenuWeaponData GetWeapon(int id) {
-        foreach(MenuWeaponData weapon in allMenuWeaponData) {
-            if(weapon.id == id) {
-                return weapon;
-            }
-        }
-        return new MenuWeaponData();
-    }
-    private MenuAbilityData GetAbility(int id) {
-        foreach (MenuAbilityData ability in allMenuAbilityData) {
-            if (ability.id == id) {
-                return ability;
-            }
-        }
-        return new MenuAbilityData();
-    }
     #endregion
-    #region Battle
-    
-    private List<BattleCharacter> battleCharacters;
-    private Status[] statusEffects;
 
+    #region Battle Functionality - Data Accessing
+    
     private List<BattleAbility> LoadAbilities(int id) {
 
-        statusEffects = loadedData.allStatusData;
 
         List<BattleAbility> abilities = new List<BattleAbility>();
         MenuWeaponData weapon = GetWeapon(id);
@@ -256,48 +390,6 @@ public class DataController : MonoBehaviour {
     public List<BattleCharacter> GetBattleData() {
         return battleCharacters;
     }
-    private void LoadBattleData() {
-        #region Character Creation Variables
-        List<BattleCharacter> tempCharacters = new List<BattleCharacter>();
-        // temporary value
-        int baseMovement = 5;
-        // base this on rarity/level/armortype later TODO
-        int baseHealth = 1824;
-        // temporary value
-        int baseInitiative = 6;
-        #endregion
-        MenuPartyData party = GetMenuPartyData();
-        int[] partyMemberIds = { party.slotOneCharacterId, party.slotTwoCharacterId, party.slotThreeCharacterId, party.slotFourCharacterId };
-        foreach(int id in partyMemberIds) {
-            BattleCharacter character = new BattleCharacter();
-            MenuCharacterData characterData = GetCharacter(id);
-            if(characterData.name != null && characterData.name != "") {
-                // set Name
-                character.name = characterData.name;
-                // set Movement range
-                character.movementRange = baseMovement - (int)Mathf.Floor(characterData.armor / 2); // Light and Medium armor get movement of 5, Heavy gets movement of 4
-                // set Max HP
-                character.maxHp = (int)Mathf.Floor(baseHealth * (characterData.armor / 10)) + baseHealth;
-                // set Initiative
-                if(characterData.armor == 0) {
-                    character.initiative = baseInitiative + (int)Mathf.Floor( Random.value * 20 );
-                } else if (characterData.armor == 1) {
-                    character.initiative = ( baseInitiative + 5 ) + (int)Mathf.Floor( Random.value * 20 );
-                } else if (characterData.armor == 2) {
-                    character.initiative = ( baseInitiative - 5 ) + (int)Mathf.Floor( Random.value * 20 );
-                } else {
-                    Debug.LogError( "Can not find out what armor character is wearing" );
-                }
-                // set Damage Mod
-                character.damageMod = 1;
-                character.abilities = LoadAbilities(characterData.weapon);
-                tempCharacters.Add( character );
-            } else {
-                Debug.LogError( "character does not exist in party" );
-            }
-
-        }
-        battleCharacters = tempCharacters;
-    }
+    
     #endregion
 }

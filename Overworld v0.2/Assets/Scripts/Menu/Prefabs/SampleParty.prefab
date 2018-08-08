@@ -600,7 +600,7 @@ MonoBehaviour:
   partyName: 
   selected: 0
   partiesMenu: {fileID: 0}
-  menuPartyData: []
+  playerPartyData: []
   contentPanel: {fileID: 224289698293964720}
   otherParty: {fileID: 0}
   characterObjectPool: {fileID: 0}

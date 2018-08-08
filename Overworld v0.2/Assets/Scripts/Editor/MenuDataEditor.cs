@@ -5,48 +5,58 @@ using UnityEditor;
 using System.IO;
 
 [CanEditMultipleObjects]
-public class MenuDataEditor : EditorWindow {
+public class DataEditorWindow : EditorWindow {
 
     public MenuData menuData;
-    private string gameDataProjectFilePath = "/StreamingAssets/data.json";
+    public PlayerData playerData;
+    public BattleData battleData;
+
+    private string menuDataFilePath = "/StreamingAssets/menu-data.json";
+    private string playerDataFilePath = "/StreamingAssets/player-data.json";
+    private string battleDataFilePath = "/StreamingAssets/battle-data.json";
 
     [MenuItem ("Window/Menu Data Editor")]
     static void Init() {
 
-        MenuDataEditor window = (MenuDataEditor)EditorWindow.GetWindow( typeof( MenuDataEditor ) );
+        DataEditorWindow window = (DataEditorWindow)EditorWindow.GetWindow( typeof( DataEditorWindow ) );
         window.Show();
 
     }
 
     void OnGUI() {
-        if (menuData != null) {
+        if (menuData != null && battleData != null && playerData != null) {
 
             SerializedObject serializedObject = new SerializedObject( this );
-            // this is probably around where the problem is
-            SerializedProperty serializedProperty = serializedObject.FindProperty("menuData");
-            EditorGUILayout.PropertyField( serializedProperty, true );
+            SerializedProperty serializedPropertyMenu = serializedObject.FindProperty("menuData");
+            EditorGUILayout.PropertyField( serializedPropertyMenu, true );
+            SerializedProperty serializedPropertyBattle = serializedObject.FindProperty( "battleData" );
+            EditorGUILayout.PropertyField( serializedPropertyBattle, true );
+            SerializedProperty serializedPropertyPlayer = serializedObject.FindProperty( "playerData" );
+            EditorGUILayout.PropertyField( serializedPropertyPlayer, true );
 
             serializedObject.ApplyModifiedProperties();
 
             if (GUILayout.Button("Save")) {
                 SaveMenuData();
+                SavePlayerData();
+                SaveBattleData();
             }
         }
 
-        if (GUILayout.Button( "Load Stuff" )) {
+        if (GUILayout.Button( "Load All" )) {
             LoadMenuData();
+            LoadPlayerData();
+            LoadBattleData();
         }
     }
 
     private void LoadMenuData() {
 
-        string filePath = Application.dataPath + gameDataProjectFilePath;
+        string filePath = Application.dataPath + menuDataFilePath;
 
         if (File.Exists( filePath )) {
             string dataAsJson = File.ReadAllText( filePath );
             menuData = JsonUtility.FromJson<MenuData>( dataAsJson );
-            Debug.Log( JsonUtility.ToJson( menuData ) );
-
         } else {
             menuData = new MenuData();
         }
@@ -56,7 +66,52 @@ public class MenuDataEditor : EditorWindow {
     private void SaveMenuData() {
 
         string dataAsJson = JsonUtility.ToJson( menuData );
-        string filePath = Application.dataPath + gameDataProjectFilePath;
+        string filePath = Application.dataPath + menuDataFilePath;
+        File.WriteAllText( filePath, dataAsJson );
+
+    }
+
+    private void LoadPlayerData() {
+
+        string filePath = Application.dataPath + playerDataFilePath;
+
+        if (File.Exists( filePath )) {
+            string dataAsJson = File.ReadAllText( filePath );
+            playerData = JsonUtility.FromJson<PlayerData>( dataAsJson );
+
+        }
+        else {
+            playerData = new PlayerData();
+        }
+
+    }
+
+    private void SavePlayerData() {
+
+        string dataAsJson = JsonUtility.ToJson( playerData );
+        string filePath = Application.dataPath + playerDataFilePath;
+        File.WriteAllText( filePath, dataAsJson );
+
+    }
+
+    private void LoadBattleData() {
+
+        string filePath = Application.dataPath + battleDataFilePath;
+
+        if (File.Exists( filePath )) {
+            string dataAsJson = File.ReadAllText( filePath );
+            battleData = JsonUtility.FromJson<BattleData>( dataAsJson );
+        }
+        else {
+            battleData = new BattleData();
+        }
+
+    }
+
+    private void SaveBattleData() {
+
+        string dataAsJson = JsonUtility.ToJson( battleData );
+        string filePath = Application.dataPath + battleDataFilePath;
         File.WriteAllText( filePath, dataAsJson );
 
     }

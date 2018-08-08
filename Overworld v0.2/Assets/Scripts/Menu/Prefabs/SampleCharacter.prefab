@@ -138,8 +138,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114236958830416800}
-        m_MethodName: SwapPartyCharacter
+      - m_Target: {fileID: 0}
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -175,6 +175,7 @@ MonoBehaviour:
     slotTwoCharacterId: 0
     slotThreeCharacterId: 0
     slotFourCharacterId: 0
+  characterId: 0
 --- !u!114 &114374505988760864
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class PartyButtonHandler : MonoBehaviour {
 
     public int partyId;
-    public MenuPartyData party;
+    public PlayerPartyData party;
     public TextMeshProUGUI editButtonText;
     public Button editButton;
     public TextMeshProUGUI partyName;
@@ -27,8 +27,7 @@ public class PartyButtonHandler : MonoBehaviour {
         data.SetPlayerComp( partyId );
         ReloadPage();
     }
-
-    #region Example of Swapping Listeners
+    
     public void EditButton() {
         editButtonText.text = "Save";
         editButton.onClick.RemoveAllListeners();
@@ -54,7 +53,6 @@ public class PartyButtonHandler : MonoBehaviour {
         }
         ReloadPage();
     }
-    #endregion
     private void SetButtonText(string buttonName, string buttonText) {
         GameObject[] gameObjects = GameObject.FindGameObjectsWithTag( "Button" );
         foreach (GameObject obj in gameObjects) {

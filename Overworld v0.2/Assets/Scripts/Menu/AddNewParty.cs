@@ -8,7 +8,7 @@ public class AddNewParty : MonoBehaviour {
 
         DataLoader dataLoader = new DataLoader();
         DataController data = dataLoader.LoadData();
-        MenuPartyData testParty = new MenuPartyData();
+        PlayerPartyData testParty = new PlayerPartyData();
 
         testParty.name = "Temporary Party";
         testParty.slotOneCharacterId = 0;

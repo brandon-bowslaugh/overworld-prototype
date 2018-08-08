@@ -18,8 +18,8 @@ public class PartiesMenu : MonoBehaviour {
     public Transform contentPanel;
 
     private int selectedParty;
-    private MenuPartyData[] menuParties;
-    private MenuCharacterData[] characters;
+    private PlayerPartyData[] playerParties;
+    private PlayerCharacterData[] characters;
 
 
 
@@ -38,8 +38,8 @@ public class PartiesMenu : MonoBehaviour {
             selectedParty = PlayerPrefs.GetInt( "currentComp" );
             // color the thing
         }
-        menuParties = data.GetAllMenuParties();
-        characters = data.GetAllMenuCharacterData();
+        playerParties = data.GetAllPlayerParties();
+        characters = data.GetAllPlayerCharacterData();
 
         // Display the data on the current scene canvas (MainMenu)
         HandlePartyPrefabs( data, dataFormat );
@@ -47,7 +47,7 @@ public class PartiesMenu : MonoBehaviour {
     }
 
     private void HandlePartyPrefabs(DataController data, DataFormat dataFormat) {
-        List<UIParty> formatParties = dataFormat.PartyInfoFormat( data, menuParties, characters );
+        List<UIParty> formatParties = dataFormat.PartyInfoFormat( data, playerParties, characters );
         AddParties( formatParties );
     }
     private void AddParties( List<UIParty> parties ) {
@@ -62,7 +62,7 @@ public class PartiesMenu : MonoBehaviour {
                 sampleParty.GetComponentInChildren<Image>().color = new Color32( 255, 255, 255, 255 );
                 sampleParty.GetComponentInChildren<TextMeshProUGUI>().color = new Color( 0.070f, 0.611f, 0.698f, 1 );
             }
-            sampleParty.Setup( party, this, party.characters, menuParties );
+            sampleParty.Setup( party, this, party.characters, playerParties );
         }        
     }
 }

@@ -35,6 +35,10 @@ public class SceneLoader : MonoBehaviour {
         SceneManager.LoadScene( "Battle" );
     }
 
+    public void TalentTree() {
+        SceneManager.LoadScene( "Talents" );
+    }
+
     public void ReloadScene() {
         SceneManager.LoadScene( SceneManager.GetActiveScene().name );
     }
