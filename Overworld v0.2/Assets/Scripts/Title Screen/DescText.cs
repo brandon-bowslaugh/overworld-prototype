@@ -7,20 +7,35 @@ public class DescText : MonoBehaviour {
 
     [SerializeField] TextMeshProUGUI descText;
     [SerializeField] string description;
-    int i;
 
 	// Update is called once per frame
-	void Update () {
+	void Start () {
 
-        if (i < 130) {
-            descText.text = description;
-        } else if(i == 150) {
-            i = 0;
-        } else {
-            descText.text = "";
-        }
-        i++;
+        StartCoroutine( TextAnimation() );
 
     }
+
+    private IEnumerator TextAnimation() {
+        StartCoroutine( ShowText() );
+        yield return new WaitForSeconds( 0.25f );
+        StartCoroutine( HideText() );
+        yield return null;
+    }
+
+    private IEnumerator ShowText() {
+        while (true) {
+            yield return new WaitForSeconds( 0.75f );
+            descText.text = description;
+            Debug.Log( "SHOW TEXT" );
+        }
+    }
+    private IEnumerator HideText() {
+        while (true) {
+            yield return new WaitForSeconds( 1.5f );
+            Debug.Log( "HIDE TEXT" );
+            descText.text = "";
+        }
+    }
+
 
 }
