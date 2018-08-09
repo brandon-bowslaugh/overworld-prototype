@@ -802,7 +802,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: Overworld Prototype Version 0.1
+  m_text: Overworld Prototype Version 0.2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1c15c2920d83d2b4a8f83d621b1f0d85, type: 2}
   m_sharedMaterial: {fileID: 21580456095247866, guid: 1c15c2920d83d2b4a8f83d621b1f0d85,
@@ -1312,7 +1312,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000030517578}
+  m_AnchoredPosition: {x: 0, y: -0.000030517578}
   m_SizeDelta: {x: 1024, y: 250}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1904694464
