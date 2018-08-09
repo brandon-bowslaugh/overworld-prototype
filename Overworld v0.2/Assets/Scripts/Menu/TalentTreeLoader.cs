@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class TalentTreeLoader : MonoBehaviour {
 
@@ -22,24 +23,26 @@ public class TalentTreeLoader : MonoBehaviour {
     private MenuTalentTreeData talentTree;
     private PlayerCharacterData character;
     private List<MenuTalentData> characterTalents;
+    private List<GameObject> coloredTalents;
 
 	// Use this for initialization
 	void Start () {
-
+        
+        coloredTalents = new List<GameObject>();
         dataLoader = new DataLoader();
         data = dataLoader.LoadData();
         // TODO Fetch available talent trees and populate dropdown menu
         foreach(MenuTalentTreeData tree in data.GetTalentTreeData()) {
             GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().options.Add(new TMP_Dropdown.OptionData(tree.name));
         }
-        GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().value = 0  ;
-
+        // Dropdown bug is solved by this mess
+        GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().value = 1;
+        GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().value = 0;
+        GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().onValueChanged.AddListener( delegate { SwapTree(); } );
         // Temporary
-        talentTreeId = 0; // TODO replace with current dropdown value
         characterId = 2; // TODO replace with { data.GetEditCharacter() }
         
         character = data.GetCharacter( characterId );
-        talentTree = data.GetTalentTree( talentTreeId );
         characterTalents = character.talents;
 
         // Temporary
@@ -49,34 +52,45 @@ public class TalentTreeLoader : MonoBehaviour {
 
     // Repsonsible for loading page data
     private void LoadNewTree() {
-        talentTreeId = 0; // TODO replace with current dropdown value
+
+        talentTreeId = GameObject.Find("TalentTreeDropdown").GetComponent<TMP_Dropdown>().value;
         selectedTreeTalents = 0;
-
-        // TODO count character talents in this talent tree
-
-
-        for(int i=0; i<talentTree.subTrees.Length; i++){
+        talentTree = data.GetTalentTree( talentTreeId );
+        
+        for (int i=0; i<talentTree.subTrees.Length; i++){
             PopulateSubTree(talentTree.subTrees[i], i);
         }
+
+        GameObject.Find( "ThisTreeTalents" ).GetComponent<TextMeshProUGUI>().text = talentTree.name + " Talents: " + selectedTreeTalents;
+
     }
 
     // Adds talents to the respective sub trees
     private void PopulateSubTree(MenuSubTreeData subTree, int subTreeIndex) {
+
+        switch (subTreeIndex) {
+            case 0:
+                GameObject.Find("Subtree1Name").GetComponent<TextMeshProUGUI>().text = subTree.name;
+                break;
+            case 1:
+                GameObject.Find( "Subtree2Name" ).GetComponent<TextMeshProUGUI>().text = subTree.name;
+                break;
+            case 2:
+                GameObject.Find( "Subtree3Name" ).GetComponent<TextMeshProUGUI>().text = subTree.name;
+                break;
+        }
+
         for(int i=0; i<subTree.talents.Length; i++){ // (MenuTalentData talent in subTree.talents) {
             UITalent currentTalent = new UITalent {
                 talent = subTree.talents[i]
             };
-
-            Debug.Log( "Character Talents Count: " + characterTalents.Count );
-            // This is the only spot that didnt work when i blind coded this whole thing
+            
             if (characterTalents.Exists( x => x.name == subTree.talents[i].name )) {
-                Debug.Log( "Selected: " + subTree.talents[i].name );
-                currentTalent.selected = true;
+                currentTalent.selected = true;                
                 selectedTreeTalents += 1;
             } else {
                 currentTalent.selected = false;
             }
-            // end of the spot
 
             DisplayTalents( currentTalent, subTreeIndex, i, subTree.talents[i] );
 
@@ -95,6 +109,7 @@ public class TalentTreeLoader : MonoBehaviour {
         if (currentTalent.selected) {
             talentButton.GetComponent<Outline>().effectColor = new Color32(169, 87, 202, 255);
             talentButton.GetComponent<TalentButtonData>().selected = true;
+            coloredTalents.Add( talentButton );
         }
         
     }
@@ -106,6 +121,7 @@ public class TalentTreeLoader : MonoBehaviour {
 
         if (!selected) {
             character.talents.Add( talent );
+            coloredTalents.Add( EventSystem.current.currentSelectedGameObject );
             EventSystem.current.currentSelectedGameObject.GetComponent<Outline>().effectColor = new Color32( 169, 87, 202, 255 );
         } else {
             character.talents.Remove( talent );
@@ -116,7 +132,16 @@ public class TalentTreeLoader : MonoBehaviour {
     }
 
     public void SwapTree() {
-        Debug.Log( "SwapTree()" );
+
+        // Clear selected colors
+        foreach(GameObject button in coloredTalents) {
+            button.GetComponent<Outline>().effectColor = new Color32( 222, 222, 222, 255 );
+        }
+        coloredTalents.Clear();
+
+        // Load new tree
+        LoadNewTree();
+
     }
 
     private GameObject GetTalentButton(int subTreeIndex, int talentIndex) {
