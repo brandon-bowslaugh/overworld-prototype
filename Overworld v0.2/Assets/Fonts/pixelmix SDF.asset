@@ -18,12 +18,12 @@ MonoBehaviour:
   m_fontInfo:
     Name: pixelmix
     PointSize: 60
-    Scale: 1
+    Scale: 0
     CharacterCount: 97
     LineHeight: 60
     Baseline: 0
     Ascender: 60
-    CapHeight: 52.5
+    CapHeight: 0
     Descender: 0
     CenterLine: 0
     SuperscriptOffset: 60
@@ -33,19 +33,19 @@ MonoBehaviour:
     UnderlineThickness: 2.9882812
     strikethrough: 21.818182
     strikethroughThickness: 2.9882812
-    TabWidth: 375
+    TabWidth: 0
     Padding: 5
     AtlasWidth: 512
     AtlasHeight: 512
-  atlas: {fileID: 28433132060091678}
+  atlas: {fileID: 28891927267920380}
   m_glyphInfoList:
   - id: 32
     x: 6
     y: 517
-    width: 37.5
-    height: 60
+    width: 0
+    height: 0
     xOffset: 0
-    yOffset: 60
+    yOffset: 0
     xAdvance: 37.5
     scale: 1
   - id: 33
@@ -940,7 +940,7 @@ MonoBehaviour:
     atlasHeight: 512
     characterSetSelectionMode: 0
     characterSequence: 32 - 126, 160, 8203, 8230, 9633
-    referencedFontAssetGUID: 
+    referencedFontAssetGUID: 1c15c2920d83d2b4a8f83d621b1f0d85
     referencedTextAssetGUID: 
     fontStyle: 0
     fontStyleModifier: 2
@@ -1004,7 +1004,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 28433132060091678}
+        m_Texture: {fileID: 28891927267920380}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OutlineTex:
@@ -1072,7 +1072,7 @@ Material:
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.39215687}
---- !u!28 &28433132060091678
+--- !u!28 &28891927267920380
 Texture2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

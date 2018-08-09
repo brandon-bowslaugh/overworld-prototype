@@ -14,6 +14,7 @@ public class DataEditorWindow : EditorWindow {
     private string menuDataFilePath = "/StreamingAssets/menu-data.json";
     private string playerDataFilePath = "/StreamingAssets/player-data.json";
     private string battleDataFilePath = "/StreamingAssets/battle-data.json";
+    private Vector2 scrollPos;
 
     [MenuItem ("Window/Menu Data Editor")]
     static void Init() {
@@ -26,6 +27,8 @@ public class DataEditorWindow : EditorWindow {
     void OnGUI() {
         if (menuData != null && battleData != null && playerData != null) {
 
+            EditorGUILayout.BeginVertical();
+            scrollPos = EditorGUILayout.BeginScrollView( scrollPos );
             SerializedObject serializedObject = new SerializedObject( this );
             SerializedProperty serializedPropertyMenu = serializedObject.FindProperty("menuData");
             EditorGUILayout.PropertyField( serializedPropertyMenu, true );
@@ -33,8 +36,9 @@ public class DataEditorWindow : EditorWindow {
             EditorGUILayout.PropertyField( serializedPropertyBattle, true );
             SerializedProperty serializedPropertyPlayer = serializedObject.FindProperty( "playerData" );
             EditorGUILayout.PropertyField( serializedPropertyPlayer, true );
-
             serializedObject.ApplyModifiedProperties();
+            EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndVertical();
 
             if (GUILayout.Button("Save")) {
                 SaveMenuData();

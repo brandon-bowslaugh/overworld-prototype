@@ -37,6 +37,7 @@ TagManager:
   - AttackButton
   - EndButton
   - ReturnButton
+  - Subtree1Row1
   layers:
   - Default
   - TransparentFX

@@ -33,6 +33,7 @@ public class DataController : MonoBehaviour {
     #region Load Menu Data
 
     private MenuData loadedMenuData;
+    private MenuTalentTreeData[] allMenuTalentTreeData;
     private MenuWeaponData[] allMenuWeaponData;
     private MenuAbilityData[] allMenuAbilityData;
     private int navData = 0;
@@ -47,6 +48,7 @@ public class DataController : MonoBehaviour {
             loadedMenuData = MenuData.CreateFromJSON( dataAsJson );
             allMenuWeaponData = loadedMenuData.menuWeaponData;
             allMenuAbilityData = loadedMenuData.menuAbilityData;
+            allMenuTalentTreeData = loadedMenuData.menuTalentTreeData;
             navData = loadedMenuData.navData;
 
         }
@@ -170,6 +172,30 @@ public class DataController : MonoBehaviour {
     #endregion
 
     #region Menu Functionality
+
+    public MenuTalentTreeData[] GetTalentTreeData() {
+        return allMenuTalentTreeData;
+    }
+
+    public void SaveCharacterTalents( PlayerCharacterData character ) {
+        // edit the selected character based on the editcharacter id
+        for(int i=0; i<allPlayerCharacterData.Length; i++) {
+            if (allPlayerCharacterData[i].id == character.id) {
+                allPlayerCharacterData[i] = character;
+            }
+        }
+        SavePlayerData();
+    }
+
+    public MenuTalentTreeData GetTalentTree(int id) {
+        foreach(MenuTalentTreeData talentTree in allMenuTalentTreeData) {
+            if(talentTree.id == id) {
+                return talentTree;
+            }
+        }
+        Debug.LogError( "Talent Tree Does Not Exist!" );
+        return new MenuTalentTreeData();
+    }
 
     public void SetPreviousPage(int prev) {
         navData = prev;
@@ -344,7 +370,7 @@ public class DataController : MonoBehaviour {
     }
 
     
-    private PlayerCharacterData GetCharacter(int id) {
+    public PlayerCharacterData GetCharacter(int id) {
         foreach(PlayerCharacterData character in allPlayerCharacterData) {
             if (character.id == id)
                 return character;

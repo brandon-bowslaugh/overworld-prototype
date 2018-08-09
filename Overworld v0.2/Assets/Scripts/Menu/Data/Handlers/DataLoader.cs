@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class DataLoader {
-    
+
     private GameObject dataGameObject = GameObject.Find( "DataLoader" );
     
     // Use this for initialization

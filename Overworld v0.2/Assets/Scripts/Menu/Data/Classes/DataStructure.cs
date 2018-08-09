@@ -9,8 +9,8 @@ public class MenuData {
 
     public int navData;
     public MenuAbilityData[] menuAbilityData;
-    public MenuTalentData[] menuTalentData;
     public MenuWeaponData[] menuWeaponData;
+    public MenuTalentTreeData[] menuTalentTreeData;
 
     public static MenuData CreateFromJSON( string jsonString ) {
         return JsonUtility.FromJson<MenuData>( jsonString );
@@ -20,9 +20,11 @@ public class MenuData {
         return menuData.menuAbilityData;
     }
 
+    /*
     public static MenuTalentData[] GetMenuTalentData( MenuData menuData ) {
         return menuData.menuTalentData;
     }
+    */
 
     public static MenuWeaponData[] GetMenuWeaponData( MenuData menuData ) {
         return menuData.menuWeaponData;
@@ -56,8 +58,10 @@ public class MenuAbilityData {
 public class MenuTalentData {
 
     public int id;
-    public int requiredTalentId;
     public string name;
+    public int requiredTalentId;
+    public int type; // { 0="Ability", 1="Passive", 2="Boon", 3="Ultimate" }
+    public int subTree;
     public string description;
     public string shiftDescription;
 
@@ -71,6 +75,20 @@ public class MenuWeaponData {
     public int damage;
     public int[] abilities;
 
+}
+
+[System.Serializable]
+public class MenuTalentTreeData {
+    public int id;
+    public string name;
+    public MenuSubTreeData[] subTrees; // 3 sub trees per talent tree
+}
+
+[System.Serializable]
+public class MenuSubTreeData {
+    public int id;
+    public string name;
+    public MenuTalentData[] talents; // 18 talents per sub tree
 }
 
 #endregion
@@ -134,6 +152,7 @@ public class PlayerCharacterData {
     public int offHand;
     public int armor;
     public int quality;
+    public List<MenuTalentData> talents;
 
 }
 
