@@ -55,6 +55,7 @@ public class SampleCharacter : MonoBehaviour {
         DataLoader dataLoader = new DataLoader();
         DataController data = dataLoader.LoadData();
         data.SetCharacterSwap( partyToChange, characterId );
+        data.SetPreviousPage( 3 );
         SceneLoader sceneLoader = new SceneLoader();
         sceneLoader.CharactersMenu();
     }

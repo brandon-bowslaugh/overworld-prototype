@@ -22,7 +22,6 @@ public class TalentTreeLoader : MonoBehaviour {
     private int selectedTalents = 0;
     private MenuTalentTreeData talentTree;
     private PlayerCharacterData character;
-    private List<MenuTalentData> characterTalents;
     private List<GameObject> coloredTalents;
 
 	// Use this for initialization
@@ -39,20 +38,16 @@ public class TalentTreeLoader : MonoBehaviour {
         GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().value = 1;
         GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().value = 0;
         GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().onValueChanged.AddListener( delegate { SwapTree(); } );
-        // Temporary
-        characterId = 2; // TODO replace with { data.GetEditCharacter() }
         
         character = data.GetCharacter( characterId );
-        characterTalents = character.talents;
-
-        // Temporary
+        
         LoadNewTree();
 
 	}
 
     // Repsonsible for loading page data
     private void LoadNewTree() {
-
+        coloredTalents.Clear();
         talentTreeId = GameObject.Find("TalentTreeDropdown").GetComponent<TMP_Dropdown>().value;
         selectedTreeTalents = 0;
         talentTree = data.GetTalentTree( talentTreeId );
@@ -85,7 +80,7 @@ public class TalentTreeLoader : MonoBehaviour {
                 talent = subTree.talents[i]
             };
             
-            if (characterTalents.Exists( x => x.name == subTree.talents[i].name )) {
+            if (character.talents.Exists( x => x.name == subTree.talents[i].name )) {
                 currentTalent.selected = true;                
                 selectedTreeTalents += 1;
             } else {
@@ -101,17 +96,19 @@ public class TalentTreeLoader : MonoBehaviour {
     private void DisplayTalents( UITalent currentTalent, int subTreeIndex, int talentIndex, MenuTalentData talentData ) {
         // Do something with currentTalent to add it to the page, color it differently if its selected, ect
         GameObject talentButton = GetTalentButton( subTreeIndex, talentIndex );
+        talentButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        talentButton.GetComponent<Button>().onClick.AddListener( ClickTalent );
         talentButton.AddComponent<TalentButtonData>(); // TODO for 'locking' talents behind their prerequisites
         talentButton.GetComponentInChildren<TextMeshProUGUI>().text = currentTalent.talent.name;
-        talentButton.GetComponent<Button>().onClick.AddListener( ClickTalent );
         talentButton.GetComponent<TalentButtonData>().talentData = talentData;
 
         if (currentTalent.selected) {
             talentButton.GetComponent<Outline>().effectColor = new Color32(169, 87, 202, 255);
             talentButton.GetComponent<TalentButtonData>().selected = true;
             coloredTalents.Add( talentButton );
+        } else {
+            talentButton.GetComponent<TalentButtonData>().selected = false;
         }
-        
     }
 
     public void ClickTalent() {
@@ -124,11 +121,31 @@ public class TalentTreeLoader : MonoBehaviour {
             coloredTalents.Add( EventSystem.current.currentSelectedGameObject );
             EventSystem.current.currentSelectedGameObject.GetComponent<Outline>().effectColor = new Color32( 169, 87, 202, 255 );
         } else {
-            character.talents.Remove( talent );
+            character.talents.Remove( talent ); // NOT REMOVING TODO
+            for (int i=0; i<character.talents.Count; i++) { 
+                if(character.talents[i].id == talent.id) {
+                    character.talents.RemoveAt( i );
+                    coloredTalents.Remove( EventSystem.current.currentSelectedGameObject );
+                }
+
+                if(character.selectedTalents.abilities[i].id == talent.id ) {
+                    character.selectedTalents.abilities[i] = null;
+                } else if (character.selectedTalents.passives[i].id == talent.id) {
+                    character.selectedTalents.passives[i] = null;
+                } else if(character.selectedTalents.boons[i].id == talent.id) {
+                    character.selectedTalents.boons[i] = null;
+                }
+            }
+
+            if (character.selectedTalents.ultimate.id == talent.id) {
+                character.selectedTalents.ultimate = null;
+            }
+
             EventSystem.current.currentSelectedGameObject.GetComponent<Outline>().effectColor = new Color32( 222, 222, 222, 255 );
         }
 
-        data.SaveCharacterTalents( character );
+        EventSystem.current.currentSelectedGameObject.GetComponent<TalentButtonData>().selected = !selected;
+        data.SaveCharacter( character );
     }
 
     public void SwapTree() {

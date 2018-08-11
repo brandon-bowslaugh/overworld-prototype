@@ -32,7 +32,7 @@ public class PartiesMenu : MonoBehaviour {
         DataLoader dataLoader = new DataLoader();
         DataController data = dataLoader.LoadData();
         DataFormat dataFormat = new DataFormat();
-
+        data.SetPreviousPage( 0 );
         // Access data for page
         if (PlayerPrefs.HasKey( "currentComp" )) {
             selectedParty = PlayerPrefs.GetInt( "currentComp" );

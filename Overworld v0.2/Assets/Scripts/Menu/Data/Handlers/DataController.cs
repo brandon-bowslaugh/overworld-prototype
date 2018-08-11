@@ -173,11 +173,41 @@ public class DataController : MonoBehaviour {
 
     #region Menu Functionality
 
+    public void AddNewCharacter() {
+        List<PlayerCharacterData> tempList = loadedPlayerData.playerCharacterData.ToList();
+        int count = tempList.Count;
+        SetEditCharacter( count );
+        PlayerCharacterData newPlayer = new PlayerCharacterData();
+        newPlayer.id = count;
+        tempList.Add( newPlayer );
+        loadedPlayerData.playerCharacterData = tempList.ToArray();
+        SavePlayerData();
+    }
+
+    private int editType;
+    private int editSlot;
+
+    public void SetEditType(int val) {
+        editType = val;
+    }
+
+    public void SetEditSlot(int val) {
+        editSlot = val;
+    }
+
+    public int GetEditType() {
+        return editType;
+    }
+
+    public int GetEditSlot() {
+        return editSlot;
+    }
+
     public MenuTalentTreeData[] GetTalentTreeData() {
         return allMenuTalentTreeData;
     }
 
-    public void SaveCharacterTalents( PlayerCharacterData character ) {
+    public void SaveCharacter( PlayerCharacterData character ) {
         // edit the selected character based on the editcharacter id
         for(int i=0; i<allPlayerCharacterData.Length; i++) {
             if (allPlayerCharacterData[i].id == character.id) {

@@ -153,6 +153,17 @@ public class PlayerCharacterData {
     public int armor;
     public int quality;
     public List<MenuTalentData> talents;
+    public CharacterSelectedData selectedTalents;
+
+}
+
+[System.Serializable]
+public class CharacterSelectedData {
+
+    public MenuTalentData[] abilities = new MenuTalentData[4];
+    public MenuTalentData ultimate = new MenuTalentData();
+    public MenuTalentData[] passives = new MenuTalentData[3];
+    public List<MenuTalentData> boons = new List<MenuTalentData>();
 
 }
 

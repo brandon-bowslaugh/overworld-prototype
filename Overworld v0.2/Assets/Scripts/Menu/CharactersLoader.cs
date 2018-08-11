@@ -25,7 +25,11 @@ public class CharactersLoader : MonoBehaviour {
             newCharacter.transform.SetParent( GameObject.Find("CharacterContainer").transform );
             newCharacter.GetComponent<Button>().interactable = true;
             newCharacter.GetComponent<Button>().onClick.RemoveAllListeners();
-            newCharacter.GetComponent<Button>().onClick.AddListener( delegate { SelectPartyCharacter( charId ); } );
+            if (data.GetPreviousPage() == 3) {
+                newCharacter.GetComponent<Button>().onClick.AddListener( delegate { SelectPartyCharacter( charId ); } );
+            } else {
+                newCharacter.GetComponent<Button>().onClick.AddListener( delegate { EditPartyCharacter( charId ); } );
+            }
 
             SampleCharacter sampleCharacter = newCharacter.GetComponent<SampleCharacter>();
             sampleCharacter.Setup( character, this );
@@ -34,10 +38,20 @@ public class CharactersLoader : MonoBehaviour {
 
     private void SelectPartyCharacter(int characterId) {
         data.SwapCharacterInParty(data.GetPartyToEdit(), data.GetCharacterToSwap(), characterId);
+        SceneLoader sceneLoader = new SceneLoader();
+        sceneLoader.PartiesMenu();
+    }
+
+    private void EditPartyCharacter(int id) {
+        data.SetEditCharacter( id );
+        SceneLoader sceneLoader = new SceneLoader();
+        sceneLoader.CharacterMenu();
     }
 
     public void AddNewCharacter() {
-        Debug.Log( "Swap to character create scene" );
+        data.AddNewCharacter();
+        SceneLoader sceneLoader = new SceneLoader();
+        sceneLoader.CharacterMenu();
     }
 
 }
