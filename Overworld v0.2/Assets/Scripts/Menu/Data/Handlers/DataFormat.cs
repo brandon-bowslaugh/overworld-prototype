@@ -16,7 +16,7 @@ public class DataFormat {
             List<int> characterIds = FillCharacterSlots(characterIdsArray);
             UIParty party = CreateUIParty(curParty, data);
             List<UICharacter> members = new List<UICharacter>();
-
+            Debug.Log( characterIds.Count );
             // cycle through characters
             for(int i=0; i<characterIds.Count; i++) {
                 members.Add( CreateUICharacter( characters[characterIds[i]], data ) );

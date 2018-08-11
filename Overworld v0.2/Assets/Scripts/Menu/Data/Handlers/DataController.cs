@@ -177,17 +177,32 @@ public class DataController : MonoBehaviour {
         List<PlayerCharacterData> tempList = loadedPlayerData.playerCharacterData.ToList();
         int count = tempList.Count;
         SetEditCharacter( count );
+        PlayerCharacterData newPlayer = GenerateNewCharacter(count);
+        tempList.Add( newPlayer );
+        loadedPlayerData.playerCharacterData = tempList.ToArray();
+        SavePlayerData();
+    }
+
+    public void AddNewCharacterToParty() {
+        List<PlayerCharacterData> tempList = loadedPlayerData.playerCharacterData.ToList();
+        int count = tempList.Count;
+        SetEditCharacter( count );
+        PlayerCharacterData newPlayer = GenerateNewCharacter( count );
+        tempList.Add( newPlayer );
+        loadedPlayerData.playerCharacterData = tempList.ToArray();
+        SwapCharacterInParty(GetPartyToEdit(), GetCharacterToSwap(), count);
+    }
+
+    private PlayerCharacterData GenerateNewCharacter(int count) {
         PlayerCharacterData newPlayer = new PlayerCharacterData();
         newPlayer.id = count;
-        newPlayer.name = "New Character " + count.ToString();
+        newPlayer.name = "New Character " + (count + 1).ToString();
         newPlayer.weapon = 14;
         newPlayer.offHand = -1;
         newPlayer.armor = 0;
         newPlayer.quality = 0;
         newPlayer.level = 30;
-        tempList.Add( newPlayer );
-        loadedPlayerData.playerCharacterData = tempList.ToArray();
-        SavePlayerData();
+        return newPlayer;
     }
 
     private int editType;
@@ -254,6 +269,7 @@ public class DataController : MonoBehaviour {
     public PlayerPartyData GetPartyToEdit() {
         return characterSwapParty;
     }
+
     public void SwapCharacterInParty(PlayerPartyData party, int oldCharacterId, int newCharacterId ) {
         int[] partyMembers = { party.slotOneCharacterId, party.slotTwoCharacterId, party.slotThreeCharacterId, party.slotFourCharacterId };
         for(int i=0; i<partyMembers.Length; i++) {

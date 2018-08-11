@@ -14,6 +14,8 @@ public class TalentSelectLoader : MonoBehaviour {
     private string subTree;
     private string talentTree;
 
+    List<int> selectedIds = new List<int>();
+
     public SimpleObjectPool talentSelectObjectPool = new SimpleObjectPool();
 
     // Use this for initialization
@@ -26,15 +28,19 @@ public class TalentSelectLoader : MonoBehaviour {
         swapType = data.GetEditType(); 
         slotId = data.GetEditSlot();
         character = data.GetCharacter( data.GetEditCharacter() );
-        Debug.Log( data.GetEditCharacter() );
+        FindSelectedTalents();
+        Debug.Log( selectedIds.Count );
         PopulateTalentSelect();
+
 
     }
 
     private void PopulateTalentSelect() {
 
         foreach (MenuTalentData talent in character.talents) {
-            if(talent.type == swapType) {
+            Debug.Log( talent.id );
+            if(talent.type == swapType && selectedIds.Contains(talent.id) == false) {
+                Debug.Log( "made it" );
                 FindTreeNames( talent.subTree );
                 GameObject newTalentSelect = talentSelectObjectPool.GetObject();
                 newTalentSelect.transform.SetParent( GameObject.Find( "AbilityContainer" ).transform );
@@ -44,6 +50,22 @@ public class TalentSelectLoader : MonoBehaviour {
             
         }
 
+    }
+
+    private void FindSelectedTalents() {
+        for(int i=0; i<character.selectedTalents.abilities.Length; i++) {
+            if (character.selectedTalents.abilities[i].name != "") {
+                selectedIds.Add( character.selectedTalents.abilities[i].id );
+            }
+        }
+        for (int i = 0; i < character.selectedTalents.passives.Length; i++) {
+            if (character.selectedTalents.passives[i].name != "") { 
+                selectedIds.Add( character.selectedTalents.passives[i].id );
+            }
+        }
+        if (character.selectedTalents.ultimate.name != "") {
+            selectedIds.Add( character.selectedTalents.ultimate.id );
+        }
     }
 
     private void FindTreeNames(int id) {
