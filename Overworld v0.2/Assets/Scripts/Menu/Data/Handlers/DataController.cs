@@ -179,6 +179,12 @@ public class DataController : MonoBehaviour {
         SetEditCharacter( count );
         PlayerCharacterData newPlayer = new PlayerCharacterData();
         newPlayer.id = count;
+        newPlayer.name = "New Character " + count.ToString();
+        newPlayer.weapon = 14;
+        newPlayer.offHand = -1;
+        newPlayer.armor = 0;
+        newPlayer.quality = 0;
+        newPlayer.level = 30;
         tempList.Add( newPlayer );
         loadedPlayerData.playerCharacterData = tempList.ToArray();
         SavePlayerData();
@@ -209,6 +215,11 @@ public class DataController : MonoBehaviour {
 
     public void SaveCharacter( PlayerCharacterData character ) {
         // edit the selected character based on the editcharacter id
+        if(character.talents.Count != 0) {
+            character.level = character.talents.Count;
+        } else {
+            character.level = 30;
+        }
         for(int i=0; i<allPlayerCharacterData.Length; i++) {
             if (allPlayerCharacterData[i].id == character.id) {
                 allPlayerCharacterData[i] = character;

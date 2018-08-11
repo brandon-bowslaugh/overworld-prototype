@@ -64,6 +64,9 @@ public class MenuTalentData {
     public int subTree;
     public string description;
     public string shiftDescription;
+    public int school; // 0 = physical, 1 = magical
+    public int aoe; // 0 = targeted, 1 = aoe, 2 = cone
+    public int range; // 0 = melee, 1 = ranged, 2 = self
 
 }
 

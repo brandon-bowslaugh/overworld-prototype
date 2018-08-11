@@ -39,8 +39,10 @@ public class TalentTreeLoader : MonoBehaviour {
         GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().value = 0;
         GameObject.Find( "TalentTreeDropdown" ).GetComponent<TMP_Dropdown>().onValueChanged.AddListener( delegate { SwapTree(); } );
         
-        character = data.GetCharacter( characterId );
         
+        character = data.GetCharacter( characterId );
+        GameObject.Find( "TotalTalents" ).GetComponent<TextMeshProUGUI>().text = "Total Talents: " + character.talents.Count;
+
         LoadNewTree();
 
 	}
@@ -121,19 +123,30 @@ public class TalentTreeLoader : MonoBehaviour {
             coloredTalents.Add( EventSystem.current.currentSelectedGameObject );
             EventSystem.current.currentSelectedGameObject.GetComponent<Outline>().effectColor = new Color32( 169, 87, 202, 255 );
         } else {
-            character.talents.Remove( talent ); // NOT REMOVING TODO
             for (int i=0; i<character.talents.Count; i++) { 
                 if(character.talents[i].id == talent.id) {
+                    Debug.Log( "talent: " + talent.id );
+                    Debug.Log( "remove: " + character.talents[i].id );
                     character.talents.RemoveAt( i );
                     coloredTalents.Remove( EventSystem.current.currentSelectedGameObject );
                 }
-
-                if(character.selectedTalents.abilities[i].id == talent.id ) {
-                    character.selectedTalents.abilities[i] = null;
-                } else if (character.selectedTalents.passives[i].id == talent.id) {
-                    character.selectedTalents.passives[i] = null;
-                } else if(character.selectedTalents.boons[i].id == talent.id) {
-                    character.selectedTalents.boons[i] = null;
+                for (int j = 0; j < character.selectedTalents.abilities.Length; j++) {
+                    if (character.selectedTalents.abilities[j].id == talent.id) {
+                        character.selectedTalents.abilities[j] = null;
+                        break;
+                    }
+                }
+                for (int j = 0; j < character.selectedTalents.passives.Length; j++) {
+                    if (character.selectedTalents.passives[j].id == talent.id) {
+                        character.selectedTalents.passives[j] = null;
+                        break;
+                    }
+                }
+                for (int j = 0; j < character.selectedTalents.boons.Count; j++) {
+                    if (character.selectedTalents.boons[j].id == talent.id) {
+                        character.selectedTalents.boons.Remove( character.selectedTalents.boons[j] );
+                        break;
+                    }
                 }
             }
 
@@ -145,6 +158,7 @@ public class TalentTreeLoader : MonoBehaviour {
         }
 
         EventSystem.current.currentSelectedGameObject.GetComponent<TalentButtonData>().selected = !selected;
+        GameObject.Find( "TotalTalents" ).GetComponent<TextMeshProUGUI>().text = "Total Talents: " + character.talents.Count;
         data.SaveCharacter( character );
     }
 
