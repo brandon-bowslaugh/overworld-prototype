@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // This class is responsible for handling player movement.
 // Works in conjunction with ReticleController for determining movement area.
@@ -114,8 +115,14 @@ public class NavigationController : MonoBehaviour {
 
             }
             yield return null;
+            GameObject.Find( "Move Button" ).GetComponent<Button>().interactable = false;
+            GameObject.Find( "Attack Button" ).GetComponent<Button>().interactable = false;
+            GameObject.Find( "End Button" ).GetComponent<Button>().interactable = false;
         }
 
+        GameObject.Find( "Move Button" ).GetComponent<Button>().interactable = true;
+        GameObject.Find( "Attack Button" ).GetComponent<Button>().interactable = true;
+        GameObject.Find( "End Button" ).GetComponent<Button>().interactable = true;
         // Decides the direction to move next
         FindPath( destination );
     }

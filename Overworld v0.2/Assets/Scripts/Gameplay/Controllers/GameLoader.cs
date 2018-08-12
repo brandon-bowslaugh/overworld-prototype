@@ -23,6 +23,13 @@ public class GameLoader : MonoBehaviour {
     public SimpleObjectPool abilityBarObjectPool = new SimpleObjectPool();
     public SimpleObjectPool battlePlayerObjectPool = new SimpleObjectPool();
 
+    private void Update() {
+        if (Input.GetKeyDown( KeyCode.Escape )) {
+            SceneLoader sceneLoader = new SceneLoader();
+            sceneLoader.MainMenu();
+        }
+    }
+
     // Use this for initialization
     void Start () {
 

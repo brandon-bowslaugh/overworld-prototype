@@ -42,7 +42,6 @@ public class AbilityController : MonoBehaviour {
 
     // For initializing the selected ability
     public void Init(BattleAbility ability) {
-        Debug.Log( JsonUtility.ToJson( ability ) );
         SetTargetType( ability.targetType );
         SetAbilityType( ability.abilityType );
         CastRange = ability.range;

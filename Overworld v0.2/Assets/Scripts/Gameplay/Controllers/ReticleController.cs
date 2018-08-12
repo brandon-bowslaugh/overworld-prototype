@@ -47,6 +47,7 @@ public class ReticleController : MonoBehaviour {
     // Handles casting a spell at a desired location
     public void ConfirmLocation() {
         // Ensures that the selected area is in the cast range
+        Debug.Log( "ConfirmLocation" );
         if (Input.GetMouseButtonDown( 0 ) && RangeArea.Contains( TileController.GridLayout.WorldToCell( InputController.CursorPosition ) )) {
             // Ensures the user was not trying to click a UI element
             if (!EventSystem.current.IsPointerOverGameObject()) {
@@ -64,7 +65,13 @@ public class ReticleController : MonoBehaviour {
                 // Clear the reticle type
                 AbilityController.Reticle = AbilityController.ReticleType.None;
 
-            }
+            } 
+        } else if (Input.GetMouseButtonDown( 0 )) {
+            AbilityController.Reticle = AbilityController.ReticleType.None;
+            TileController.Instance.ClearTiles( RangeArea );
+        } else if (Input.GetMouseButtonDown( 1 )) {
+            AbilityController.Reticle = AbilityController.ReticleType.None;
+            TileController.Instance.ClearTiles( RangeArea );
         }
     }
 

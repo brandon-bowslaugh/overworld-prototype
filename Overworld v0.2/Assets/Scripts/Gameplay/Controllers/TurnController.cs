@@ -81,11 +81,15 @@ public class TurnController : MonoBehaviour {
     private void Movement() {
         if (Input.GetMouseButtonDown( 0 ) && NavigationController.navTiles.Contains(InputController.CursorPositionInt)) {
             NavigationController.Instance.Move( InputController.CursorPosition );
+        } else if (Input.GetMouseButtonDown( 1 )) {
+            NavigationController.Instance.ReInit();
+            State = TurnState.Standby;
         }
     }
 
     // Re-Initialize Character variables at the start of a new Character turn
     private void BeginTurn() {
+        GameObject.Find( "Move Button" ).GetComponent<Button>().interactable = true;
         EntityManager.Entities[turn].tag = "Player";
         NavigationController.Instance.Init(EntityManager.Entities[turn].gameObject);
         AbilityController.AbilitiesUsed = 0;
@@ -108,10 +112,11 @@ public class TurnController : MonoBehaviour {
         // Check if these are needed
         AbilityController.Reticle = AbilityController.ReticleType.None;
         NavigationController.Instance.ReInit();
-        
+        NavigationController.Instance.Init( EntityManager.Entities[turn].gameObject );
+        AbilityController.AbilitiesUsed = 0;
+
         UIController.Hide( EntityManager.Entities[turn].abilityBar.GetComponent<CanvasGroup>() );
 
-        GameObject.Find( "Move Button" ).GetComponent<Button>().interactable = true;
 
         // Increment turn counter
         EntityManager.Entities[turn].tag = "Ally";

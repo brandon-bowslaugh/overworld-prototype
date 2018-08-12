@@ -127,6 +127,7 @@ public class TileController : MonoBehaviour {
     // Method responsible for displaying the cast range of an ability
     public void DisplayRange() {
         Vector3Int cellPosition = GridLayout.WorldToCell( GameObject.FindWithTag( "Player" ).transform.position );
+        ClearTiles( ReticleController.RangeArea );
         ReticleController.RangeArea.Clear();
 
         for (int x = (AbilityController.CastRange * -1); x <= AbilityController.CastRange; x++) {

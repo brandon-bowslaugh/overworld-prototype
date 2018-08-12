@@ -49,7 +49,6 @@ public class DataController : MonoBehaviour {
             allMenuWeaponData = loadedMenuData.menuWeaponData;
             allMenuAbilityData = loadedMenuData.menuAbilityData;
             allMenuTalentTreeData = loadedMenuData.menuTalentTreeData;
-            navData = loadedMenuData.navData;
 
         }
         else {
@@ -172,6 +171,26 @@ public class DataController : MonoBehaviour {
     #endregion
 
     #region Menu Functionality
+
+    public string GetVersionNumber() {
+        return loadedMenuData.version;
+    }
+
+    private void SaveMenuData() {
+        string dataAsJson = JsonUtility.ToJson( loadedMenuData );
+        string filePath = Application.streamingAssetsPath + "/" + menuDataFileName;
+        File.WriteAllText( filePath, dataAsJson );
+        LoadPlayerData();
+    }
+
+    public void SawChangeLog() {
+        loadedMenuData.changeLogSeen = true;
+        SaveMenuData();
+    }
+
+    public bool ChangeLogSeen() {
+        return loadedMenuData.changeLogSeen;
+    }
 
     public void AddNewCharacter() {
         List<PlayerCharacterData> tempList = loadedPlayerData.playerCharacterData.ToList();

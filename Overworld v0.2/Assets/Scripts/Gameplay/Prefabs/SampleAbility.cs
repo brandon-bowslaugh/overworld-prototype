@@ -38,6 +38,7 @@ public class SampleAbility : MonoBehaviour {
 
 
     public void AbilityButton() {
+        TileController.Instance.ClearTiles( ReticleController.CastArea );
         AbilityController.Instance.Init( ability );
     }
 }

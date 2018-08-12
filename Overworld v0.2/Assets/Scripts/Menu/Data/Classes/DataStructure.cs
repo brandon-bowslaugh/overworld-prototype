@@ -7,10 +7,11 @@ using System.IO;
 [System.Serializable]
 public class MenuData {
 
-    public int navData;
+    public string version;
     public MenuAbilityData[] menuAbilityData;
     public MenuWeaponData[] menuWeaponData;
     public MenuTalentTreeData[] menuTalentTreeData;
+    public bool changeLogSeen;
 
     public static MenuData CreateFromJSON( string jsonString ) {
         return JsonUtility.FromJson<MenuData>( jsonString );
@@ -28,10 +29,6 @@ public class MenuData {
 
     public static MenuWeaponData[] GetMenuWeaponData( MenuData menuData ) {
         return menuData.menuWeaponData;
-    }
-
-    public static int GetMenuNavData( MenuData menuData ) {
-        return menuData.navData;
     }
 }
 

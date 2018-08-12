@@ -29,10 +29,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Talents.unity
     guid: 44268211a8f7ecf4e9a0f35d14f457a9
-  - enabled: 0
-    path: Assets/Scenes/Archived/OldCustomize.unity
-    guid: 23e0170fe1a4993448ee35d1b8214b0f
-  - enabled: 0
-    path: Assets/Scenes/Archived/OldCharacters.unity
-    guid: baf86d0659d901c478de0890aa43a8e7
   m_configObjects: {}

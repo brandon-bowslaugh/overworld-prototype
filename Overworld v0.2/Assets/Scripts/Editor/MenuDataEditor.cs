@@ -40,6 +40,8 @@ public class DataEditorWindow : EditorWindow {
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
 
+
+
             if (GUILayout.Button("Save")) {
                 SaveMenuData();
                 SavePlayerData();

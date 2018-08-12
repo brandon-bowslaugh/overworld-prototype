@@ -63,6 +63,8 @@ public class UIController : MonoBehaviour {
 
     // Method called when the user presses the 'Return' button on the ability bar 
     public void ReturnButton() {
+        Debug.Log( ReticleController.CastArea.Count );
+        TileController.Instance.ClearTiles( ReticleController.CastArea );
         Hide( actionbar );
         Show( standybar );
     }
