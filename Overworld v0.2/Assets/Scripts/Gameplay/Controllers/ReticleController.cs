@@ -52,7 +52,10 @@ public class ReticleController : MonoBehaviour {
             // Ensures the user was not trying to click a UI element
             if (!EventSystem.current.IsPointerOverGameObject()) {
                 // Sets the ability animation colors
-                if(AbilityController.Type == AbilityController.AbilityType.Damage) {
+                GameObject.Find( "Move Button" ).GetComponent<Button>().interactable = false;
+                GameObject.Find( "Attack Button" ).GetComponent<Button>().interactable = false;
+                GameObject.Find( "End Button" ).GetComponent<Button>().interactable = false;
+                if (AbilityController.Type == AbilityController.AbilityType.Damage) {
                     SetColors( _damageColor1, _damageColor2, _damageColor3 );
                 } else {
                     // This is where additional ability colors will go later TODO

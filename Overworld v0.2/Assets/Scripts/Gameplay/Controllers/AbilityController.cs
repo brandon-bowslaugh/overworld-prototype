@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // This class is responsible for controlling the currently selected ability. 
 // Works in conjunction with ReticleController for casting abilities
@@ -147,6 +148,10 @@ public class AbilityController : MonoBehaviour {
 
         // Cast ability
         Cast();
+
+        GameObject.Find( "Move Button" ).GetComponent<Button>().interactable = true;
+        GameObject.Find( "Attack Button" ).GetComponent<Button>().interactable = true;
+        GameObject.Find( "End Button" ).GetComponent<Button>().interactable = true;
     }
 
     // ValidateTargets methods ensure that only Characters inside the cast area will be affected
