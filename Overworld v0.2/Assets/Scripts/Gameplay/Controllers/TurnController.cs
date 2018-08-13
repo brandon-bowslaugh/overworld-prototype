@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // This class is responsible for all turn management, and switches between Characters
@@ -79,9 +80,9 @@ public class TurnController : MonoBehaviour {
 
     // Called when the user presses the 'Move' Button, awaits input and ensures that the selected tile is in the movement area
     private void Movement() {
-        if (Input.GetMouseButtonDown( 0 ) && NavigationController.navTiles.Contains(InputController.CursorPositionInt)) {
+        if (Input.GetMouseButtonDown( 0 ) && NavigationController.navTiles.Contains(InputController.CursorPositionInt) && !EventSystem.current.IsPointerOverGameObject()) {
             NavigationController.Instance.Move( InputController.CursorPosition );
-        } else if (Input.GetMouseButtonDown( 1 )) {
+        } else if (Input.GetMouseButtonDown( 1 ) || Input.GetMouseButtonDown( 0 ) && EventSystem.current.IsPointerOverGameObject()) {
             NavigationController.Instance.ReInit();
             State = TurnState.Standby;
         }
