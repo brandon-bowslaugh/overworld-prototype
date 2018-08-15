@@ -48,7 +48,6 @@ public class ReticleController : MonoBehaviour {
     // Handles casting a spell at a desired location
     public void ConfirmLocation() {
         // Ensures that the selected area is in the cast range
-        Debug.Log( "ConfirmLocation" );
         if (Input.GetMouseButtonDown( 0 ) && RangeArea.Contains( TileController.GridLayout.WorldToCell( InputController.CursorPosition ) )) {
             // Ensures the user was not trying to click a UI element
             if (!EventSystem.current.IsPointerOverGameObject()) {

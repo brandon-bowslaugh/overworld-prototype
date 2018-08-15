@@ -41,6 +41,8 @@ public class NavigationController : MonoBehaviour {
     private float xDiff;
     private float yDiff;
     private float step;
+    private int movementCost;
+    private int maxMovement;
     #endregion
 
     #region Movement Functionality
@@ -49,7 +51,10 @@ public class NavigationController : MonoBehaviour {
     public void Init( GameObject entity ) {
         navTiles = new List<Vector3Int>();
         this.entity = entity;
-        MovementRemaining = entity.GetComponent<Character>().movementStat;
+        movementCost = entity.GetComponent<Character>().movementCost;
+        
+        MovementRemaining = Mathf.Clamp( TurnController.ActionPoints / movementCost, 0, 6 );
+        maxMovement = MovementRemaining;
         cellPosition = entity.transform.position;
     }
 
@@ -58,6 +63,11 @@ public class NavigationController : MonoBehaviour {
         TileController.Instance.ClearTiles( navTiles );
         navTiles.Clear();
         cellPosition = entity.transform.position;
+        if(Mathf.Clamp( TurnController.ActionPoints / movementCost, 0, 6 ) < maxMovement) {
+            MovementRemaining = Mathf.Clamp( TurnController.ActionPoints / movementCost, 0, 6 );
+        } else {
+            MovementRemaining = maxMovement;
+        }
     }
 
     // This method decides which direction to move first for Character movement
@@ -88,7 +98,13 @@ public class NavigationController : MonoBehaviour {
 
         FindPath( destination );
         StartCoroutine( Step( destination ) ); // calls step to make sure that the movement is animated rather than a teleport
-        MovementRemaining = Mathf.FloorToInt( MovementRemaining - Mathf.Abs( xDiff ) - Mathf.Abs( yDiff ) );
+
+
+        // Movement tracking variables
+        int thisMovedTiles = (Mathf.FloorToInt( Mathf.Abs( xDiff ) )) + (Mathf.FloorToInt( Mathf.Abs( yDiff ) ));
+        maxMovement -= (Mathf.FloorToInt( Mathf.Abs( xDiff ) * 1 )) + (Mathf.FloorToInt( Mathf.Abs( yDiff ) * 1 ));
+
+        TurnController.ActionPoints -= (thisMovedTiles * movementCost);
         // Re-Initialize movement variables
         ReInit();
         TurnController.State = TurnController.TurnState.Standby;
@@ -130,6 +146,7 @@ public class NavigationController : MonoBehaviour {
 
     // Displays the movement area when the 'Move' button is pressed
     public void CalcMoveArea() {
+        ReInit();
         // will probably need to replace this with A* Algorithm TODO
         for (int x = (MovementRemaining * -1); x <= MovementRemaining; x++) {
             for (int y = (MovementRemaining * -1); y <= MovementRemaining; y++) {

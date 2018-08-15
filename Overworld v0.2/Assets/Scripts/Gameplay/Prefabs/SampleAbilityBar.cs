@@ -7,11 +7,13 @@ public class BattleAbility {
     public int abilityId;
     public string name;
     public int value;
+    public int cost;
     public int xAxis;
     public int range;
     public int reticleType;
     public int abilityType;
     public int targetType;
+    public int cooldown;
     public Status status;
 
 }
