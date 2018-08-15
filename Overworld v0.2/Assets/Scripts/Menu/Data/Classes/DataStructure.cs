@@ -39,6 +39,8 @@ public class MenuAbilityData {
     public string name;
     public int value;
     public bool physical;
+    public int cost;
+    public int cooldown;
     public int target;
     public int range;
     public int type;
@@ -176,6 +178,25 @@ public class PlayerCompData {
 #endregion
 
 #region Battle Data
+[System.Serializable] // For menu data editor to access
+public class Status {
+
+    public int id;
+    public string statusName;
+    public string description;
+    public int sourceCharacter;
+    public float value;
+    public int duration;
+    public int priority; // To Determine order of applications
+    public int statusType;
+    public int effectType;
+    public int applicationTime; // Start or End of round
+    public int schoolType; // Physical or Magical
+    public bool hidden;
+    public Status additionalStatus = null;
+
+}
+
 [System.Serializable]
 public class BattleData {
     public Status[] statusData;

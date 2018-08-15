@@ -8,28 +8,10 @@ public class BattleCharacter {
 
     public string name;
     public int maxHp;
-    public int movementRange;
+    public int movementCost;
     public int initiative;
     public float damageMod;
     public List<BattleAbility> abilities;
-
-}
-
-[System.Serializable] // For menu data editor to access
-public class Status {
-
-    public int id;
-    public string statusName;
-    public string description;
-    public float value;
-    public int duration;
-    public int priority; // To Determine order of applications
-    public int statusType;
-    public int effectType;
-    public int applicationTime; // Start or End of round
-    public int schoolType; // Physical or Magical
-    public bool hidden;
-    public Status additionalStatus = null;
 
 }
 
@@ -37,6 +19,7 @@ public struct StatusStruct {
     public int id;
     public string statusName;
     public string description;
+    public int sourceCharacter;
     public float value;
     public int duration;
     public int priority; // To Determine order of applications
@@ -52,13 +35,16 @@ public class Character : MonoBehaviour {
 
     // Setup() variables
     public string entityName;
-    public int movementStat;
+    public int movementCost;
     public float maxHp;
     public int initiative;
     public float damageMod;
     public int entityIdentifier;
     public float currentHp;
     public GameObject abilityBar;
+    public float totalSp; // TODO need math for how much to generate sp
+    private float requiredSp;
+    public bool dead = false;
 
     [SerializeField] public Image healthDisplay;
     [SerializeField] public TextMeshProUGUI combatText;
@@ -75,10 +61,11 @@ public class Character : MonoBehaviour {
         entityName = currentCharacter.name;
         maxHp = currentCharacter.maxHp;
         currentHp = maxHp;
-        movementStat = currentCharacter.movementRange;
+        movementCost = currentCharacter.movementCost;
         initiative = currentCharacter.initiative;
         damageMod = currentCharacter.damageMod;
         entityIdentifier = id;
+        requiredSp = 1000f;
         displayName.text = entityName;
         gameObject.transform.position = spawnLocation;
     }
@@ -89,7 +76,7 @@ public class Character : MonoBehaviour {
     }
 
     // Method responsible for dealing damage to THIS Character
-    public void TakeDamage(float damage) {
+    public void TakeDamage(float damage, int source) {
         if (damage != 0) {
             currentHp -= damage;
             if(currentHp > maxHp) {
@@ -102,12 +89,21 @@ public class Character : MonoBehaviour {
             } else {
                 StartCoroutine(FloatingCombatText( (damage * -1).ToString(), true )); // Display positive healing number, Color Green
             }
-            if (currentHp <= 0) {
-                EntityManager.Entities.Remove( this );
-                gameObject.SetActive( false );
-            }
+            
             DisplayHealth();
+            EntityManager.Entities[source].GetComponent<Character>().GenerateSp( Mathf.Abs(damage) );
         }
+    }
+
+    public void GenerateSp(float val) {
+        totalSp += (val / 4);
+        if(totalSp > requiredSp) {
+            totalSp = requiredSp;
+        }
+    }
+
+    public string SpGage() {
+        return ((totalSp / requiredSp) * 100).ToString() + " SP";
     }
 
     // Display of floating combat text animation
@@ -123,6 +119,14 @@ public class Character : MonoBehaviour {
         yield return new WaitForSeconds( 0.5f );
         combatText.CrossFadeAlpha( 0.0f, 2.0f, false );
         yield return new WaitForSeconds( 0.1f );
+        if (currentHp <= 0) {
+            dead = true;
+            if (EntityManager.Entities[TurnController.turn] == this) {
+                Debug.Log( "Died to status effect" );
+                TurnController.State = TurnController.TurnState.EndOfTurn;
+            }
+            gameObject.SetActive( false );
+        }
     }
 
     #region Status Handling, Needs much cleanup
@@ -150,7 +154,6 @@ public class Character : MonoBehaviour {
         // Cycle through each start of round effect
         int counter = statusEffects.Count; // Need to do this rather than foreach because of bug
         for (int i=0; i<counter; i++) {
-            Debug.Log( "StartDuration: " + statusEffects[i].duration );
             StatusController.Instance.Init( StatusStructToClass(statusEffects[i]) );
             // Subtract 1 from duration
             Status editStatus = StatusStructToClass( statusEffects[i] );
@@ -161,7 +164,6 @@ public class Character : MonoBehaviour {
                 StatusController.Instance.Init( statusEffects[i].additionalStatus );
             }
             if (statusEffects[i].duration < 1) {
-                Debug.Log( "Removed From Start" );
                 statusEffects.Remove( statusEffects[i] );
                 i -= 1;
                 counter = statusEffects.Count;
@@ -175,7 +177,6 @@ public class Character : MonoBehaviour {
         // Cycle through each end of round status effect
         int counter = endOfTurnEffects.Count;
         for (int i=0; i<counter; i++) {
-            Debug.Log( "EndDuration: " + endOfTurnEffects[i].duration );
             StatusController.Instance.Init( StatusStructToClass( endOfTurnEffects[i] ) );
             Status editStatus = StatusStructToClass( endOfTurnEffects[i] );
             editStatus.duration -= 1;
@@ -183,8 +184,7 @@ public class Character : MonoBehaviour {
             if (endOfTurnEffects[i].additionalStatus != null) {
                 StatusController.Instance.Init( endOfTurnEffects[i].additionalStatus );
             }
-            if(endOfTurnEffects[i].duration < 1) {                
-                Debug.Log( "Removed From End" );
+            if(endOfTurnEffects[i].duration < 1) {    
                 endOfTurnEffects.Remove( endOfTurnEffects[i] );
                 i -= 1;
                 counter = endOfTurnEffects.Count;
@@ -276,6 +276,7 @@ public class Character : MonoBehaviour {
         curStatus.id = status.id;
         curStatus.statusName = status.statusName;
         curStatus.description = status.description;
+        curStatus.sourceCharacter = status.sourceCharacter;
         curStatus.value = status.value;
         curStatus.duration = status.duration;
         curStatus.priority = status.priority;
@@ -293,6 +294,7 @@ public class Character : MonoBehaviour {
         status.id = curStatus.id;
         status.statusName = curStatus.statusName;
         status.description = curStatus.description;
+        status.sourceCharacter = curStatus.sourceCharacter;
         status.value = curStatus.value;
         status.duration = curStatus.duration;
         status.priority = curStatus.priority;

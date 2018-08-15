@@ -124,7 +124,7 @@ public class DataController : MonoBehaviour {
         #region Character Creation Variables
         List<BattleCharacter> tempCharacters = new List<BattleCharacter>();
         // temporary value
-        int baseMovement = 5;
+        int baseMovement = 1;
         // base this on rarity/level/armortype later TODO
         int baseHealth = 1824;
         // temporary value
@@ -139,24 +139,28 @@ public class DataController : MonoBehaviour {
                 // set Name
                 character.name = characterData.name;
                 // set Movement range
-                character.movementRange = baseMovement - (int)Mathf.Floor( characterData.armor / 2 ); // Light and Medium armor get movement of 5, Heavy gets movement of 4
                 // set Max HP
-                character.maxHp = (int)Mathf.Floor( baseHealth * (characterData.armor / 10) ) + baseHealth;
+                character.maxHp = (int)Mathf.Floor( baseHealth * (characterData.armor / 10.0f) ) + baseHealth;
+                Debug.Log( character.maxHp );
                 // set Initiative
                 if (characterData.armor == 0) {
                     character.initiative = baseInitiative + (int)Mathf.Floor( Random.value * 20 );
+                    character.movementCost = 1;
                 }
                 else if (characterData.armor == 1) {
                     character.initiative = (baseInitiative + 5) + (int)Mathf.Floor( Random.value * 20 );
+                    character.movementCost = 1;
                 }
                 else if (characterData.armor == 2) {
                     character.initiative = (baseInitiative - 5) + (int)Mathf.Floor( Random.value * 20 );
+                    character.movementCost = 2;
                 }
                 else {
                     Debug.LogError( "Can not find out what armor character is wearing" );
                 }
                 // set Damage Mod
                 character.damageMod = 1;
+                // Temporary
                 character.abilities = LoadAbilities( characterData.weapon );
                 tempCharacters.Add( character );
             }
@@ -475,9 +479,11 @@ public class DataController : MonoBehaviour {
             ability.value = abilityData.value;
             ability.xAxis = abilityData.xAxis;
             ability.range = abilityData.range;
+            ability.cost = abilityData.cost;
             ability.abilityType = abilityData.type;
             ability.reticleType = abilityData.reticle;
             ability.targetType = abilityData.target;
+            ability.cooldown = abilityData.cooldown;
             if(abilityData.statusId != -1) {
                 for (int i = 0; i < statusEffects.Count(); i++) {
                     if (abilityData.statusId == i) {
