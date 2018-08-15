@@ -112,8 +112,10 @@ public class TileController : MonoBehaviour {
         }
 
         if (watermap.GetTile( tile )) {
+            Debug.Log( "Water Tile exists" );
             return false;
         } else if (tilemap.GetTile( tile )) {
+            Debug.Log( watermap.gameObject.name );
             tilemap.SetColor( tile, moveColor ); // Add the tile if no obstructions
             return true;
         } else {

@@ -26,6 +26,7 @@ public class AbilityController : MonoBehaviour {
     #endregion
 
     // Public Variables
+    public static int AbilitiesUsed = 0; // Counter variable
     public enum ReticleType { None, Diamond, Square, Cone };
     public enum AbilityType { Damage, Healing, Mobility, Cleanse };
     public enum TargetType { Any, Enemy, Ally, Self };
@@ -34,8 +35,6 @@ public class AbilityController : MonoBehaviour {
     public static ReticleType Reticle { get; set; } // 0 is none, 1 is diamond, 2 is square
     public static int XAxis { get; private set; }
     public static int YAxis { get; private set; } // unused at this time, will be required for some abilities later
-    public static int Cost { get; private set; }
-    private SampleAbility button;
 
     // Local Variables
     float abilityValue; // damage or healing number
@@ -43,7 +42,7 @@ public class AbilityController : MonoBehaviour {
     private Status status;
 
     // For initializing the selected ability
-    public void Init(BattleAbility ability, SampleAbility btn) {
+    public void Init(BattleAbility ability) {
         SetTargetType( ability.targetType );
         SetAbilityType( ability.abilityType );
         CastRange = ability.range;
@@ -55,15 +54,14 @@ public class AbilityController : MonoBehaviour {
         } else {
             status = null;
         }
-        button = btn;
-        Cost = ability.cost;
+        
         TurnController.State = TurnController.TurnState.Attack;
 
     }
 
     // Initializes enum ReticleType Reticle
     private void SetReticleType( int type ) {
-        if(Cost <= TurnController.ActionPoints) {
+        if(AbilitiesUsed <= 0) {
             switch (type) {
                 case 0:
                     Reticle = ReticleType.None;
@@ -166,12 +164,11 @@ public class AbilityController : MonoBehaviour {
     // ValidateTarget methods ensure that only the Character inside the cast area will be affected
     private void ValidateTarget( GameObject target, float val ) {
         if (ReticleController.CastArea.Contains( TileController.GridLayout.WorldToCell( target.transform.position ) )) {
-            target.GetComponent<Character>().TakeDamage( val, TurnController.turn );
+            target.GetComponent<Character>().TakeDamage( val );
 
             if(status != null) {
                 Status curStatus = new Status();
                 curStatus = status;
-                curStatus.sourceCharacter = TurnController.turn;
                 target.GetComponent<Character>().ApplyStatusEffect( curStatus );
             }
         }
@@ -195,8 +192,9 @@ public class AbilityController : MonoBehaviour {
 
     // Casts the spell, and deals damage to affected targets using abilityValue. Healing is done with -abilityValue
     private void Cast() {
-        
-        TurnController.ActionPoints -= Cost;
+
+        // Increment the amount of times a player has casted an ability. This will be used more later with talents
+        AbilitiesUsed += 1;
 
         // Determine TargetType then AbilityType { possibly switch statement later TODO }
         if (targetType == TargetType.Any) { // Target Any
@@ -234,8 +232,5 @@ public class AbilityController : MonoBehaviour {
             }
 
         }
-        UIController.Instance.CheckAbilities();
-        button.OnCooldown();
-        TurnController.State = TurnController.TurnState.Standby;
     }
 }

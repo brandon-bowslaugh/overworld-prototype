@@ -49,7 +49,6 @@ public class UIController : MonoBehaviour {
 
     // Method called when 'Move' Button is pressed
     public void MoveButton() {
-        NavigationController.Instance.ReInit();
         if ( NavigationController.MovementRemaining > 0 ) {
             NavigationController.Instance.CalcMoveArea();
             TurnController.State = TurnController.TurnState.Movement;
@@ -58,13 +57,13 @@ public class UIController : MonoBehaviour {
 
     // Method called when 'Attack' Button is pressed
     public void AttackButton() {
-        CheckAbilities();
         Hide( standybar );
         Show( actionbar );    
     }
 
     // Method called when the user presses the 'Return' button on the ability bar 
     public void ReturnButton() {
+        Debug.Log( ReticleController.CastArea.Count );
         TileController.Instance.ClearTiles( ReticleController.CastArea );
         Hide( actionbar );
         Show( standybar );
@@ -73,22 +72,5 @@ public class UIController : MonoBehaviour {
     // Method called when the user presses the 'End' button, switches to the next players turn
     public void EndButton() {
         TurnController.State = TurnController.TurnState.EndOfTurn;
-    }
-
-    public void CheckAbilities() {
-        GameObject abilityBar = EntityManager.Entities[TurnController.turn].abilityBar;
-        foreach (Button ability in abilityBar.GetComponentsInChildren<Button>()) {
-            int cost = ability.GetComponent<SampleAbility>().cost;
-            if (cost > TurnController.ActionPoints) {
-                ability.interactable = false;
-            }
-        }
-    }
-
-    public void ResetAbilities() {
-        GameObject abilityBar = EntityManager.Entities[TurnController.turn].abilityBar;
-        foreach (Button ability in abilityBar.GetComponentsInChildren<Button>()) {
-            ability.interactable = true;
-        }
     }
 }

@@ -30,7 +30,6 @@ public class TurnController : MonoBehaviour {
     public enum TurnState { BeginningOfTurn, Movement, Attack, EndOfTurn, Standby };
     public static TurnState State { get; set; }
     public static int turn = 0;
-    public static int ActionPoints { get; set; }
 
     // Inifinitely loop through Character turns
     public IEnumerator HandleTurnState() {
@@ -77,8 +76,6 @@ public class TurnController : MonoBehaviour {
         if(NavigationController.MovementRemaining == 0) {
             GameObject.Find( "Move Button" ).GetComponent<Button>().interactable = false;
         }
-        Debug.Log( "ActionPoints Remaining: " + ActionPoints );
-        Debug.Log( "SP Gage: " + EntityManager.Entities[TurnController.turn].GetComponent<Character>().SpGage() );
     }
 
     // Called when the user presses the 'Move' Button, awaits input and ensures that the selected tile is in the movement area
@@ -93,19 +90,10 @@ public class TurnController : MonoBehaviour {
 
     // Re-Initialize Character variables at the start of a new Character turn
     private void BeginTurn() {
-        if (EntityManager.Entities[turn].dead) {
-            EndTurn();
-        }
-        UIController.Instance.ResetAbilities();
-
-        foreach(SampleAbility ab in EntityManager.Entities[turn].abilityBar.GetComponentsInChildren<SampleAbility>()) {
-            ab.currentCooldown -= 1;
-        }
-        
-        ActionPoints = 8;
         GameObject.Find( "Move Button" ).GetComponent<Button>().interactable = true;
         EntityManager.Entities[turn].tag = "Player";
         NavigationController.Instance.Init(EntityManager.Entities[turn].gameObject);
+        AbilityController.AbilitiesUsed = 0;
         EntityManager.Entities[turn].GetComponent<Character>().StatusEffectsActivate();
         // Init other controllers
         EntityManager.Entities[turn].GetComponent<Character>().healthDisplay.GetComponent<Outline>().effectColor = new Color32( 97, 41, 152, 255 );
@@ -118,7 +106,6 @@ public class TurnController : MonoBehaviour {
     // Clear all tiles for the next Character turn
     private void EndTurn() {
         // Clear focus on entity
-        ActionPoints = 0;
         EntityManager.Entities[turn].GetComponent<Character>().EndOfTurnStatusEffects();
         EntityManager.Entities[turn].GetComponent<Character>().healthDisplay.GetComponent<Outline>().effectColor = new Color32( 97, 41, 152, 0 );
         // Clear all tile colors
@@ -127,6 +114,7 @@ public class TurnController : MonoBehaviour {
         AbilityController.Reticle = AbilityController.ReticleType.None;
         NavigationController.Instance.ReInit();
         NavigationController.Instance.Init( EntityManager.Entities[turn].gameObject );
+        AbilityController.AbilitiesUsed = 0;
 
         UIController.Hide( EntityManager.Entities[turn].abilityBar.GetComponent<CanvasGroup>() );
 

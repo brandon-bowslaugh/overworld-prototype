@@ -36,7 +36,6 @@ public class StatusController : MonoBehaviour {
     private string description;
     private int priority;
     private float value;
-    private int source;
     private Status currentStatus;
 
     delegate void StealthDelegate();
@@ -57,7 +56,6 @@ public class StatusController : MonoBehaviour {
             description = status.description;
             hidden = true;
         }
-        source = status.sourceCharacter;
         priority = status.priority;
         value = status.value;
         SetStatusType( status.statusType );
@@ -124,10 +122,10 @@ public class StatusController : MonoBehaviour {
     private void ValueOverTime() {
         if (Effect == EffectType.Debuff) {
             Finish( statusName, false );
-            EntityManager.Entities[TurnController.turn].TakeDamage( value, source );
+            EntityManager.Entities[TurnController.turn].TakeDamage( value );
         } else {
             Finish( statusName, true );
-            EntityManager.Entities[TurnController.turn].TakeDamage( -value, source );
+            EntityManager.Entities[TurnController.turn].TakeDamage( -value );
         }            
     }
     
@@ -139,7 +137,8 @@ public class StatusController : MonoBehaviour {
     // StatusType.Stun
     private void Stun() {
         if (Effect == EffectType.Debuff) {
-            TurnController.ActionPoints = 0;
+            NavigationController.MovementRemaining = 0;
+            AbilityController.AbilitiesUsed = 1;
         }
     }
 
