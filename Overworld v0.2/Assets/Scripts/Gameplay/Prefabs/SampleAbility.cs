@@ -13,6 +13,7 @@ public class SampleAbility : MonoBehaviour {
     public int reticleType; // 0 is none, 1 is diamond, 2 is square
     public int targetType; // 0 is enemy, 1 is ally, 2 is self
     public int abilityType; // 0 is damage, 1 is healing, 2 is mobility
+    public float secondaryValue;
     public int cost;
     public int cooldown;
     public int currentCooldown = 0;
@@ -28,6 +29,7 @@ public class SampleAbility : MonoBehaviour {
         cost = currentAbility.cost;
         xAxis = currentAbility.xAxis;
         abilityValue = currentAbility.value;
+        secondaryValue = currentAbility.secondaryValue;
         reticleType = currentAbility.reticleType;
         targetType = currentAbility.targetType;
         abilityType = currentAbility.abilityType;

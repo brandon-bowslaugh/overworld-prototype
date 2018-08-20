@@ -10,6 +10,7 @@ public class BattleAbility {
     public int cost;
     public int xAxis;
     public int range;
+    public float secondaryValue;
     public int reticleType;
     public int abilityType;
     public int targetType;

@@ -165,7 +165,7 @@ public class StatusController : MonoBehaviour {
                 positiveEffect = true;
             } else {
                 // They are revealed and can not become invisible
-                EntityManager.Entities[TurnController.turn].RemoveStatus( currentStatus );
+                EntityManager.Entities[TurnController.turn].RemoveStatus( "Invisibility" );
                 EntityManager.Entities[TurnController.turn].RemoveEndOfTurnStatus( currentStatus );
                 handleStealth = RevealCharacter;
                 positiveEffect = false;

@@ -477,6 +477,7 @@ public class DataController : MonoBehaviour {
             ability.abilityId = abilityId;
             ability.name = abilityData.name;
             ability.value = abilityData.value;
+            ability.secondaryValue = abilityData.secondaryValue;
             ability.xAxis = abilityData.xAxis;
             ability.range = abilityData.range;
             ability.cost = abilityData.cost;

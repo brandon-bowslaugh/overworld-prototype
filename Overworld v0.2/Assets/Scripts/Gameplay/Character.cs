@@ -91,8 +91,19 @@ public class Character : MonoBehaviour {
             }
             
             DisplayHealth();
-            EntityManager.Entities[source].GetComponent<Character>().GenerateSp( Mathf.Abs(damage) );
+            if(source != -1) {
+                EntityManager.Entities[source].GetComponent<Character>().GenerateSp( Mathf.Abs( damage ) );
+            }
         }
+    }
+
+    public float TakeSpDamage( float damage ) {
+
+        float currentSp = totalSp;
+        totalSp = totalSp * (1 - (damage / 100));
+        float spDifference = currentSp - totalSp;
+        return spDifference;
+
     }
 
     public void GenerateSp(float val) {
@@ -125,14 +136,26 @@ public class Character : MonoBehaviour {
                 Debug.Log( "Died to status effect" );
                 TurnController.State = TurnController.TurnState.EndOfTurn;
             }
-            gameObject.SetActive( false );
+            gameObject.SetActive( false ); // TODO change this for ressurect to work
         }
+    }
+
+    public void KillCharacter() {
+        dead = true;
+        gameObject.SetActive( false ); // TODO change this for ressurect to work
     }
 
     #region Status Handling, Needs much cleanup
     
-    public void RemoveStatus( Status status ) {
-        statusEffects.Remove( StatusClassToStruct( status ) );
+    public void RemoveStatus( string nameToRemove ) {
+        int counter = statusEffects.Count;
+        for(int i=0; i<counter; i++) {
+            if( statusEffects[i].statusName == nameToRemove ) {
+                statusEffects.RemoveAt( i );
+                i--;
+                counter--;
+            }
+        }
     }
 
     public void RemoveEndOfTurnStatus( Status status ) {
@@ -206,40 +229,74 @@ public class Character : MonoBehaviour {
         }
     }
 
-    public void ClearAllDebuffs() {
-        int counter = statusEffects.Count;
-        for (int i=0; i<counter; i++) {
+    public void ClearDebuffs( int count ) {
+        int counter;
+        if (count != 0 && count < statusEffects.Count) {
+            counter = count;
+        }
+        else {
+            counter = statusEffects.Count;
+        }
+
+        int j = 0;
+        List<StatusStruct> removedStatusEffects = new List<StatusStruct>();
+
+        for (int i = 0; i < counter; i++) {
             if (statusEffects[i].effectType == 0) {
                 statusEffects.Remove( statusEffects[i] );
+                j++;
                 i -= 1;
                 counter = statusEffects.Count;
+                if (j >= count && count != 0) {
+                    break;
+                }
             }
         }
-        counter = endOfTurnEffects.Count;
-        for (int i = 0; i < counter; i++) {
-            if (endOfTurnEffects[i].effectType == 0) {
-                endOfTurnEffects.Remove( endOfTurnEffects[i] );
-                i -= 1;
-                counter = endOfTurnEffects.Count;
+        counter = j;
+        int endOfTurnEffectsCounter = endOfTurnEffects.Count;
+        for (int i = 0; i < endOfTurnEffectsCounter; i++) {
+            for (int k = 0; k < counter; k++) {
+                if (endOfTurnEffects[i].effectType == 0 && endOfTurnEffects[i].statusName == removedStatusEffects[k].statusName) {
+                    endOfTurnEffects.RemoveAt( i );
+                    i -= 1;
+                    endOfTurnEffectsCounter = endOfTurnEffects.Count;
+                }
             }
         }
     }
 
-    public void ClearAllBuffs() {
-        int counter = statusEffects.Count;
+    public void ClearBuffs( int count ) {
+
+        int counter;
+        if (count != 0 && count < statusEffects.Count) {
+            counter = count;
+        } else {
+            counter = statusEffects.Count;
+        }
+
+        int j = 0;
+        List<StatusStruct> removedStatusEffects = new List<StatusStruct>();
+
         for (int i = 0; i < counter; i++) {
             if (statusEffects[i].effectType == 1) {
                 statusEffects.Remove( statusEffects[i] );
+                j++;
                 i -= 1;
                 counter = statusEffects.Count;
+                if (j >= count && count != 0) {
+                    break;
+                }
             }
         }
-        counter = endOfTurnEffects.Count;
-        for (int i = 0; i < counter; i++) {
-            if (endOfTurnEffects[i].effectType == 1) {
-                endOfTurnEffects.Remove( endOfTurnEffects[i] );
-                i -= 1;
-                counter = endOfTurnEffects.Count;
+        counter = j;
+        int endOfTurnEffectsCounter = endOfTurnEffects.Count;
+        for (int i = 0; i < endOfTurnEffectsCounter; i++) {
+            for(int k=0; k<counter; k++) {
+                if ( endOfTurnEffects[i].effectType == 1 && endOfTurnEffects[i].statusName == removedStatusEffects[k].statusName ) {
+                    endOfTurnEffects.RemoveAt( i );
+                    i -= 1;
+                    endOfTurnEffectsCounter = endOfTurnEffects.Count;
+                }
             }
         }
     }

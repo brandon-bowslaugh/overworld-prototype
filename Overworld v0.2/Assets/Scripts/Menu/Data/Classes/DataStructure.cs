@@ -41,6 +41,7 @@ public class MenuAbilityData {
     public bool physical;
     public int cost;
     public int cooldown;
+    public int secondaryValue;
     public int target;
     public int range;
     public int type;
